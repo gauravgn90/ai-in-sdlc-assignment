@@ -1,0 +1,1082 @@
+ ▐▛███▛█   Claude Code v2.1.322
+▝▜██████▀  Opus 5.5 · Claude Pro
+ ▝▝   ▝▝   ~/Softwares/claude2/AI-In-SDLC/ai-in-sdlc-assignment/ops
+
+  Fable 5.2 is here for your longest and toughest coding tasks, and is included in your plan until November 16. It draws down usage faster than Opus 5.5. You also get a free Fable limit reset to redeem at clau.de/reset by November 16. Switch with /model.
+  1 more notice hidden
+
+❯ Using the Mermaid MCP, draw a C4-style container diagram of this codebase as  
+  it exists today, not as described in ops/. For every element, cite the file   
+  or class it comes from. List separately anything you inferred without a       
+  citation.                                                                     
+
+  Ran 4 shell commands (ctrl+o to expand)
+
+● The untracked c4-container.md draft checks out against the source, and I've
+  reworded one e2e line since there are no e2e tests yet. Next I'll render the
+  diagram with the Mermaid MCP. · summary
+
+  Called mermaid (ctrl+o to expand)
+
+● Bash(mv mermaid-2026-11-10T13-01-58-639Z-uxt47y.png
+      docs/architecture/c4-container.png && ls -la docs/architecture)
+  ⎿  total 208
+     drwxrwxr-x 2 gauravkumar07 gauravkumar07   4096 Nov 10 18:32 .
+     drwxrwxr-x 4 gauravkumar07 gauravkumar07   4096 Nov 10 18:14 ..
+     … +4 lines (ctrl+o to expand)
+  ⎿  2 files changed (binary, mode only or too large to show)
+
+  Read 1 file (ctrl+o to expand)
+
+● Mermaid's C4 layout produced overlapping edge labels, so I'll redraw it as a
+  flowchart in C4 style, which lays out more cleanly.
+
+  Called mermaid (ctrl+o to expand)
+
+● Bash(mv -f mermaid-2026-11-10T13-02-20-295Z-d3esoz.png
+      docs/architecture/c4-container.png)
+  ⎿  2 files changed (binary, mode only or too large to show)
+
+  Read 1 file (ctrl+o to expand)
+
+● The render is clean. Now I'll update the markdown so its source matches the
+  image.
+
+● Bash(cd /home/gauravkumar07/Softwares/claude2/AI-In-SDLC/ai-in-sdlc-assignment
+      /docs/architecture && python3 - <<'EOF'
+      import re…)
+  ⎿  6:![C4 container diagram](c4-container.png)
+     62:| Web UI | `backend/src/InvoiceApp.Api/wwwroot/index.html`, `wwwroo
+     t/app.js`, `wwwroot/styles.css`. `fetch('/api…')` with Bearer header a
+     … +5 lines (ctrl+o to expand)
+  ⎿  Updated ~/Softwares/claude2/AI-In-SDLC/ai-in-sdlc-assignment/docs/arch
+     itecture/c4-container.md (+46 -33)
+       3  Scope: the code in this repository as it exists now. Nothing un
+          der `ops/` is
+       4  represented, so there is no database, message topic or PayEx in
+          tegration.
+       5  
+       6 -```mermaid                                                     
+       7 -C4Container                                                    
+       8 -    title Invoice Approval Demo App: containers (as built)     
+       6 +![C4 container diagram](c4-container.png)                      
+       7  
+      10 -    Person(approver, "Approver", "Signs in as demo.approver. Ca
+         -n create, submit, approve and reject invoices.")               
+      11 -    Person(admin, "Admin", "Signs in as demo.admin. Same as App
+         -rover, plus can delete invoices.")                             
+       8 +Rendered with the Mermaid MCP server. Mermaid's native `C4Conta
+         +iner` layout put edge labels on top of each other, so this vers
+         +ion is a flowchart styled in C4 colours. Blue is runtime and gr
+         +ey is dev or CI only.                                          
+       9  
+      13 -    System_Boundary(app, "Invoice Approval Demo App") {        
+      14 -        Container(webui, "Web UI", "HTML, CSS, vanilla JavaScri
+         -pt", "Sign-in form, invoice list, create and submit, approve an
+         -d reject. Keeps the bearer token in sessionStorage.")          
+      15 -        Container(api, "InvoiceApp.Api", "ASP.NET Core 8 Web AP
+         -I", "Serves the Web UI's static files and the /api/auth, /api/i
+         -nvoices and /api/approvals endpoints. Bearer-session middleware
+         - and RequireRole filter.")                                     
+      16 -        Container(domain, "InvoiceApp.Domain", ".NET 8 class li
+         -brary, in-process", "ApprovalService handles the Draft to Pendi
+         -ngApproval to Approved or Rejected lifecycle. Defines IInvoiceR
+         -epository.")                                                   
+      17 -        ContainerDb(invoicestore, "In-memory invoice store", "I
+         -nMemoryInvoiceRepository, List of Invoice, in-process", "Seeded
+         - with INV-1001 to INV-1005. No database.")                     
+      18 -        ContainerDb(sessionstore, "In-memory session store", "S
+         -essionStore, ConcurrentDictionary, in-process", "Opaque 16-byte
+         - hex bearer token mapped to Username and Role.")               
+      19 -        ContainerDb(users, "Demo user config", "appsettings.jso
+         -n Users section", "Two demo accounts with plaintext passwords a
+         -nd roles.")                                                    
+      20 -    }                                                          
+      10 +```mermaid                                                     
+      11 +flowchart TB                                                   
+      12 +    approver["<b>Approver</b><br/>[Person]<br/>demo.approver<br
+         +/>create, submit, approve, reject"]                            
+      13 +    admin["<b>Admin</b><br/>[Person]<br/>demo.admin<br/>as Appr
+         +over, plus delete"]                                            
+      14  
+      22 -    System_Boundary(dev, "Development and delivery (not deploye
+         -d)") {                                                         
+      23 -        Container(unittests, "InvoiceApp.Tests", "xUnit, .NET 8
+         -", "ApprovalServiceTests against FakeInvoiceRepository.")      
+      24 -        Container(e2e, "e2e suite", "Playwright, Chromium", "Co
+         -nfig and webServer launcher only. tests/ and pages/ are empty."
+         -)                                                              
+      25 -        Container(ci, "CI workflow", "GitHub Actions, ubuntu-la
+         -test", "On push or PR to main it builds and runs dotnet test. I
+         -t does not run e2e.")                                          
+      26 -    }                                                          
+      15 +    subgraph app["Invoice Approval Demo App: one ASP.NET Core p
+         +rocess"]                                                       
+      16 +        direction TB                                           
+      17 +        webui["<b>Web UI</b><br/>[Container: HTML, CSS, vanilla
+         + JS]<br/>wwwroot/index.html, app.js<br/>Bearer token in session
+         +Storage"]                                                      
+      18 +        api["<b>InvoiceApp.Api</b><br/>[Container: ASP.NET Core
+         + 8 Web API]<br/>AuthController, InvoicesController, ApprovalsCo
+         +ntroller<br/>SessionAuthMiddleware, RequireRoleAttribute"]     
+      19 +        domain["<b>InvoiceApp.Domain</b><br/>[Class library, in
+         +-process]<br/>ApprovalService, IInvoiceRepository"]            
+      20 +        invoicestore[("<b>In-memory invoice store</b><br/>[InMe
+         +moryInvoiceRepository]<br/>seeded INV-1001..1005, no DB")]     
+      21 +        sessionstore[("<b>In-memory session store</b><br/>[Sess
+         +ionStore, ConcurrentDictionary]<br/>token to Username and Role"
+         +)]                                                             
+      22 +        users[("<b>Demo user config</b><br/>[appsettings.json U
+         +sers]<br/>2 demo accounts")]                                   
+      23 +    end                                                        
+      24  
+     … 62 more lines (ctrl+o to expand)
+
+● I drew the container diagram with the Mermaid MCP and saved it to
+  docs/architecture/c4-container.png. It covers only what is in backend/, e2e/
+  and .github/; nothing from ops/ is in it, so it shows no database, message
+  topic or payment provider.
+
+  docs/architecture/c4-container.md already held a draft of this diagram. I
+  checked each of its citations against the code before using it. I made three
+  changes:
+  - Layout: Mermaid's built-in C4 layout put the arrow labels on top of each
+    other. I redrew it as a flowchart in C4 colours: blue for what runs, grey
+    for dev and CI tooling.
+  - e2e arrow: it is now dashed and says "configured to launch". e2e/tests/ is
+    empty, so nothing actually drives the UI yet.
+  - Line numbers: I corrected the app.js citation.
+
+  Elements and where each comes from
+
+  Element: Approver, Admin (people)
+  Source: appsettings.json Users section. Roles enforced by
+    ApprovalsController.cs:9 [RequireRole("Approver","Admin")] and
+    InvoicesController.cs:73 [RequireRole("Admin")] on Delete
+  ────────────────────────────────────────
+  Element: Web UI
+  Source: wwwroot/index.html, app.js, styles.css. Calls fetch('/api…') with a
+    Bearer token at app.js:16-23 and keeps the session in sessionStorage at
+    app.js:4,108
+  ────────────────────────────────────────
+  Element: InvoiceApp.Api
+  Source: InvoiceApp.Api.csproj (Microsoft.NET.Sdk.Web, net8.0), Program.cs.
+    Endpoints come from AuthController, InvoicesController and
+    ApprovalsController. Errors are mapped to status codes in
+    ApiControllerBase.Handle
+  ────────────────────────────────────────
+  Element: Sign-in check and role filter
+  Source: Auth/SessionAuthMiddleware.cs (Program.cs:21),
+    Auth/RequireRoleAttribute.cs
+  ────────────────────────────────────────
+  Element: InvoiceApp.Domain
+  Source: ApprovalService.cs, IInvoiceRepository.cs, Invoice.cs,
+    InvoiceStatus.cs. Referenced from InvoiceApp.Api.csproj:8. ApprovalService
+  is
+     registered as scoped at Program.cs:15
+  ────────────────────────────────────────
+  Element: In-memory invoice store
+  Source: InMemoryInvoiceRepository.cs, registered as a singleton at
+    Program.cs:14
+  ────────────────────────────────────────
+  Element: In-memory session store
+  Source: Auth/SessionStore.cs, registered as a singleton at Program.cs:13
+  ────────────────────────────────────────
+  Element: Demo user config
+  Source: appsettings.json Users, bound to DemoUsersOptions
+  (Auth/UserSession.cs)
+    at Program.cs:12, and read by AuthController.Login
+  ────────────────────────────────────────
+  Element: Address localhost:5000
+  Source: Properties/launchSettings.json:6
+  ────────────────────────────────────────
+  Element: InvoiceApp.Tests
+  Source: InvoiceApp.Tests.csproj (xUnit; references only the Domain project),
+    ApprovalServiceTests.cs, FakeInvoiceRepository.cs
+  ────────────────────────────────────────
+  Element: e2e suite
+  Source: e2e/playwright.config.ts:9,14 (baseURL, webServer.command) and
+    e2e/package.json
+  ────────────────────────────────────────
+  Element: CI workflow
+  Source: .github/workflows/ci.yml:17-18 (dotnet build and dotnet test only)
+
+  Inferred, with no file to cite
+
+  - No external systems: I concluded this from what the code lacks. There is no
+    HttpClient, DbContext, message bus or payment client, and no NuGet packages
+    outside the test project.
+  - Domain drawn as its own box: strict C4 would call a class library a
+    component, not a container. I kept it separate to show the project boundary,
+    but it runs inside the API process.
+  - In-memory stores drawn as data stores: they are objects inside the API
+    process, not separately deployed containers.
+  - State is lost on restart, and only one instance can run: this follows from
+    the singleton in-memory stores; no file states it.
+  - No CORS needed: the UI uses relative /api paths, and Program.cs sets up no
+    CORS.
+  - Both roles can create and submit invoices: InvoicesController has no
+    class-level RequireRole, so signing in is the only check.
+  - CI does not run e2e: ci.yml has no Playwright steps.
+  - Left out on purpose: DiscountCalculator.cs, which exists but nothing uses
+    it, and the Playwright and Mermaid MCP servers in .mcp.json, which are
+    developer tooling.
+
+  Both files in docs/architecture/ are uncommitted. I haven't committed them.
+
+✻ Crunched for 1m 31s · done 6:32 PM
+
+❯ Now draw a Mermaid sequence diagram for the invoice approval path, from HTTP  
+  request to store. Cite the file and method for every step.                    
+
+  Called mermaid, ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd /home/gauravkumar07/Softwares/claude2/AI-In-SDLC/ai-in-sdlc-assignment
+      && mv mermaid-2026-11-10T13-05-32-627Z-wcf5y4.png
+      docs/architecture/approval-sequence.…)
+  ⎿  72:      approve.addEventListener('click', () => decide(`/approvals/${
+     invoice.id}/approve`, {}));
+     73:      reject.addEventListener('click', () => decide(`/approvals/${i
+     … +6 lines (ctrl+o to expand)
+  ⎿  2 files changed (binary, mode only or too large to show)
+
+  Read 1 file, ran 1 shell command (ctrl+o to expand)
+
+● Write(~/Softwares/claude2/AI-In-SDLC/ai-in-sdlc-assignment/docs/architecture/a
+       pproval-sequence.md)
+  ⎿  Wrote 92 lines to ~/Softwares/claude2/AI-In-SDLC/ai-in-sdlc-assignment
+     /docs/architecture/approval-sequence.md
+       1 # Sequence: approve an invoice (as built today)
+       2 
+       3 This follows `POST /api/approvals/{invoiceId}/approve` from the 
+         HTTP request to the in-memory store, with the failure branches. 
+         Nothing under `ops/` is represented. Paths are relative to `back
+         end/src/`.
+       4 
+       5 ![Approval sequence](approval-sequence.png)
+       6 
+       7 Rendered with the Mermaid MCP server. Step numbers come from `au
+     … +86 lines (~6 KB) (ctrl+o to expand)
+
+● I drew the sequence diagram with the Mermaid MCP and wrote it up with a
+  citation for each step. Neither file is committed yet.
+
+  - Diagram: docs/architecture/approval-sequence.png
+  - Write-up: docs/architecture/approval-sequence.md, which has the diagram
+    source and a 24-row table giving the file, line and class.method for every
+    numbered step.
+
+  The path
+
+  1. Client: the Approve button runs decide() and then api() in
+     app.js:72,82,16-19. That sends POST /api/approvals/{id}/approve with a
+     Bearer token.
+  2. SessionAuthMiddleware.InvokeAsync looks the token up with SessionStore.Get.
+     If there is no session it returns 401. Otherwise it puts the session in
+     HttpContext.Items.
+  3. RequireRoleAttribute.OnActionExecuting checks the role is Approver or Admin
+     (ApprovalsController.cs:9). If not, it returns 403.
+  4. ApprovalsController.Approve gets the username with GetSession() and wraps
+     the call in ApiControllerBase.Handle.
+  5. ApprovalService.Approve works in this order:
+     - It looks the invoice up through Find, which calls
+       InMemoryInvoiceRepository.GetById. A missing invoice ends in 404.
+     - EnsurePending checks the status. If the invoice isn't pending the request
+       ends in 409.
+     - It sets Status, DecidedBy and DecidedAt.
+     - It calls InMemoryInvoiceRepository.Update, which takes a lock and
+       replaces the list entry.
+  6. Handle returns 200 with the invoice as JSON, with the status written as a
+     string (Program.cs:10).
+
+  Inferred, with no citation
+
+  - Order of 401 and 403: this comes from the middleware order in Program.cs
+    plus how ASP.NET Core runs middleware before filters, not from anything this
+    repo states.
+  - No 400 on approve: Handle catches ArgumentException, but Approve never
+    throws one, so the diagram leaves that branch out.
+  - Possible race (not tested): GetById hands back the stored object itself, not
+    a copy. So ApprovalService changes the stored invoice before Update and
+    outside the lock. Two approvals of the same invoice at the same moment could
+    both pass EnsurePending. No test covers this.
+  - Left out: the step where the framework creates ApprovalService for each
+    request (Program.cs:15), and the UI's follow-up refresh(), which is a
+    separate GET /api/invoices.
+
+✻ Crunched for 1m 6s · done 6:36 PM
+
+※ recap: You asked for architecture diagrams of the codebase as it is today; the C4 container diagram and the cited approval sequence diagram are both done in docs/architecture/. Next, review the two diagrams and say whether to commit them. (disable recaps in /config)
+
+❯ Draw the target state with Azure SQL and PayEx integration. Mark components   
+  that don’t exist yet with a dashed style or a ‘NOT BUILT’ label               
+
+● I'll check what ops/ says about the planned deployment so the target state is
+  based on the repo's own plans rather than my guesses.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● The ops/ docs describe production as Azure Service Bus, three load-balanced
+  instances and PayEx over HTTPS, but never name a database. So I'm using the
+  database you asked for and will note that in the write-up, and I'm drawing the
+  diagram now. · summary
+
+  Called mermaid (ctrl+o to expand)
+
+● Bash(mv mermaid-2026-11-10T13-12-22-267Z-zb5c4g.png
+      docs/architecture/c4-container-target.png)
+  ⎿  2 files changed (binary, mode only or too large to show)
+
+  Read 1 file (ctrl+o to expand)
+
+● The render is clean, with every not-built element dashed and labelled. Now
+  I'll write the doc with sources.
+
+● Write(~/Softwares/claude2/AI-In-SDLC/ai-in-sdlc-assignment/docs/architecture/c
+       4-container-target.md)
+  ⎿  Wrote 109 lines to ~/Softwares/claude2/AI-In-SDLC/ai-in-sdlc-assignmen
+     t/docs/architecture/c4-container-target.md
+       1 # C4 container diagram: target state (Azure SQL + PayEx)
+       2 
+       3 **This is a plan, not a description of the running system.** For
+          what exists today, see [c4-container.md](c4-container.md).
+       4 
+       5 ![Target-state container diagram](c4-container-target.png)
+       6 
+       7 **Legend**
+       8 
+       9 | Style | Meaning |
+     … +100 lines (ctrl+o to expand)
+  Ran 1 shell command (ctrl+o to expand)
+
+● Two ops line references were off by one, and the PayEx client citation needs a
+  caveat. I'll fix both.
+
+● Bash(cd /home/gauravkumar07/Softwares/claude2/AI-In-SDLC/ai-in-sdlc-assignment
+      /docs/architecture && sed -i
+      's/`deploy-diff.patch:86`/`deploy-diff.patch:85`/; s/`depl…)
+  ⎿  94:| PayExClient: HttpClient, timeout, retry | Not built | `ops/incide
+     nts/INC-2041/deploy-diff.patch:114-117` (typed `AddHttpClient<IPayExCl
+     ient, PayExClient>`,
+     … +6 lines (ctrl+o to expand)
+  ⎿  Updated ~/Softwares/claude2/AI-In-SDLC/ai-in-sdlc-assignment/docs/arch
+     itecture/c4-container-target.md (+3 -3)
+      91  | Azure SQL Database | Not built | **Your request.** `ops/READM
+          E.md:17` only says "a database" and names no product |
+      92  | SqlInvoiceRepository | Not built | Name inferred. AGENTS.md r
+          ule: "Repositories are interfaces in Domain with an in-memory i
+          mplementation in Api"; the interface is `IInvoiceRepository.cs`
+           |
+      93  | PayEx (external) | Not integrated | `ops/README.md:17-18`, `o
+          ps/incidents/INC-2041/README.md:30-31` ("calls it over HTTPS") 
+          |
+      94 -| PayExClient: HttpClient, timeout, retry | Not built | `ops/in
+         -cidents/INC-2041/deploy-diff.patch:114-117` (typed `AddHttpClie
+         -nt<IPayExClient, PayExClient>`, base URL, 10 s timeout), `:136`
+         - (config), `ops/incidents/INC-2047/recent-changes.md:7` (retry 
+         -policy) |                                                      
+      94 +| PayExClient: HttpClient, timeout, retry | Not built | `ops/in
+         +cidents/INC-2041/deploy-diff.patch:114-117` (typed `AddHttpClie
+         +nt<IPayExClient, PayExClient>`, base URL, 10 s timeout: the pre
+         +-2.14.0 registration, which that diff *removes*), `:136` (confi
+         +g), `ops/incidents/INC-2047/recent-changes.md:7` (retry policy)
+         + |                                                             
+      95  | Azure Service Bus topic `invoice-events` | Not built | `ops/i
+          ncidents/INC-2047/servicebus-status.txt:5` (`az servicebus topi
+          c show … sb-invoice-prod --name invoice-events`) |
+      96  | EventPublisher | Not built | `ops/incidents/INC-2047/publishe
+          r-logs.txt:2` (`Component: EventPublisher`) |
+      97  | Event names `invoice.approved` | Not built | `ops/incidents/I
+          NC-2047/recent-changes.md:15,24`, `servicebus-status.txt:59` |
+     ...
+       99  
+      100  ## Inferred, with no direct citation
+      101  
+      102 -- **PayEx goes behind a Domain port (`IPaymentGateway`), not i
+          -n the controller.** The `ops` diff calls `_payEx.SubmitAsync` 
+          -from `ApprovalsController.Approve` (`deploy-diff.patch:86`). A
+          -GENTS.md forbids business logic in controllers, so I drew a Do
+          -main interface with the PayEx adapter in Api, the same pattern
+          - as `IInvoiceRepository`. The interface name is mine.         
+      103 -- **The order of approve, pay and publish isn't decided.** The
+          - `ops` diff saves the approval first and then calls PayEx sync
+          -hronously (`deploy-diff.patch:85-86`), and INC-2041 is "approv
+          -als slow and failing" after that change. Whether payment is sy
+          -nc or async, and whether to use an outbox so that saving to th
+          -e database and publishing to the topic either both happen or n
+          -either does, are open decisions. The diagram doesn't settle th
+          -em.                                                           
+      102 +- **PayEx goes behind a Domain port (`IPaymentGateway`), not i
+          +n the controller.** The `ops` diff calls `_payEx.SubmitAsync` 
+          +from `ApprovalsController.Approve` (`deploy-diff.patch:85`). A
+          +GENTS.md forbids business logic in controllers, so I drew a Do
+          +main interface with the PayEx adapter in Api, the same pattern
+          + as `IInvoiceRepository`. The interface name is mine.         
+      103 +- **The order of approve, pay and publish isn't decided.** The
+          + `ops` diff saves the approval first and then calls PayEx sync
+          +hronously (`deploy-diff.patch:84-85`), and INC-2041 is "approv
+          +als slow and failing" after that change. Whether payment is sy
+          +nc or async, and whether to use an outbox so that saving to th
+          +e database and publishing to the topic either both happen or n
+          +either does, are open decisions. The diagram doesn't settle th
+          +em.                                                           
+      104  - **Sessions must be shared or stateless.** With three instanc
+           es, a token issued by one instance is unknown to the others. T
+           hat follows from `SessionStore` being an in-memory singleton c
+           ombined with INC-2041:32. The fix isn't chosen: Redis, SQL, si
+           gned JWTs, or sticky sessions.
+      105  - **Demo users in `appsettings.json` would also need replacing
+           ** for production, with real identity and secrets. Not drawn, 
+           because `ops/` doesn't name a provider.
+      106  - **A secrets store (e.g. Key Vault) for the PayEx key and the
+            SQL connection.** Implied by "Rotated the PayEx API key" (`re
+           cent-changes.md:33`), but no store is named, so it isn't drawn
+           .
+
+● I drew the target-state diagram with the Mermaid MCP and saved it to
+  docs/architecture/c4-container-target.png. The write-up, with sources and the
+  legend, is in docs/architecture/c4-container-target.md. Like the earlier
+  files, these aren't committed.
+
+  How it's styled:
+  - Dashed red border with a [NOT BUILT] label: load balancer,
+    SqlInvoiceRepository, Azure SQL Database, the PayEx client and its
+    interface, EventPublisher, the Azure Service Bus topic invoice-events, and
+    its three subscribers (notification-worker, audit-archive,
+    analytics-export).
+  - Dashed grey border: PayEx, which is external and has no integration yet.
+  - Solid blue: the Web UI, Api and Domain, which exist today.
+  - Solid blue with an orange border: parts that exist but must change.
+    SessionStore keeps sessions in memory, so with three instances a token from
+    one instance is unknown to the others. InMemoryInvoiceRepository gets
+    replaced by SQL; I kept it on the diagram for development and tests.
+  - Dotted arrows: relationships that don't exist yet.
+
+  Where the planned parts come from:
+  - Azure SQL is from your request. ops/README.md:17 only says "a database" and
+    names no product.
+  - Everything else planned is cited from ops/. The three instances behind a
+    load balancer are in INC-2041's README. The PayEx client setup is in its
+    deploy diff. The Service Bus topic and its subscriptions are in INC-2047's
+    az servicebus output. AGENTS.md says ops/ describes the planned production
+    deployment, so it's the right source for a target state. The doc also says
+    everything in ops/ is invented scenario data.
+
+  Design choices I made that aren't in any file:
+  - PayEx goes through an interface in Domain (IPaymentGateway, my name), not 
+    the controller. The ops diff calls PayEx directly from
+    ApprovalsController.Approve (deploy-diff.patch:85), but AGENTS.md says no
+    business logic in controllers.
+  - Left open on purpose:
+    - Whether the PayEx call happens during the approve request or afterwards.
+      The ops version does it during the request, and INC-2041 is titled
+      "approvals slow and failing" after that change.
+    - Whether to use an outbox so that saving to the database and publishing to
+      the topic either both happen or neither does.
+    - How sessions get shared across instances.
+    - Which data-access library to use.
+  - Not drawn: a secrets store (the PayEx key rotation implies one, but none is
+    named), real identity in place of the demo users, and the unclear
+    Notifications.LegacyEndpoint.
+
+✻ Worked for 1m 24s · done 6:43 PM
+
+❯ Write one architecture test using NetArchTest, e.g. controllers must not      
+  depend on the store directly. Add it to the test project.                     
+
+● I'll check the .NET SDK and confirm the NetArchTest package is available
+  before editing.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd /home/gauravkumar07/Softwares/claude2/AI-In-SDLC/ai-in-sdlc-assignment
+      /backend/tests/InvoiceApp.Tests && dotnet add package NetArchTest.Rules
+      --version 1.3.2…)
+  ⎿  info : PackageReference for package 'NetArchTest.Rules' version '1.3.2
+     ' added to file '/home/gauravkumar07/Softwares/claude2/AI-In-SDLC/ai-i
+     n-sdlc-assignment/backend/tests/InvoiceApp.Tests/InvoiceApp.Tests.cspr
+     … +20 lines (ctrl+o to expand)
+  ⎿  Updated ~/Softwares/claude2/AI-In-SDLC/ai-in-sdlc-assignment/backend/t
+     ests/InvoiceApp.Tests/InvoiceApp.Tests.csproj (+2 -0)
+       7    </PropertyGroup>
+       8    <ItemGroup>
+       9      <PackageReference Include="Microsoft.NET.Test.Sdk" Version=
+          "17.11.1" />
+      10 +    <PackageReference Include="NetArchTest.Rules" Version="1.3.
+         +2" />                                                          
+      11      <PackageReference Include="xunit" Version="2.9.2" />
+      12      <PackageReference Include="xunit.runner.visualstudio" Versi
+          on="2.8.2" />
+      13      <PackageReference Include="coverlet.collector" Version="6.0
+          .2" />
+      14    </ItemGroup>
+      15    <ItemGroup>
+      16      <ProjectReference Include="..\..\src\InvoiceApp.Domain\Invo
+          iceApp.Domain.csproj" />
+      17 +    <ProjectReference Include="..\..\src\InvoiceApp.Api\Invoice
+         +App.Api.csproj" />                                             
+      18    </ItemGroup>
+      19  </Project>
+  ⎿  (timeout 5m)
+
+● Write(~/Softwares/claude2/AI-In-SDLC/ai-in-sdlc-assignment/backend/tests/Invoi
+       ceApp.Tests/ArchitectureTests.cs)
+  ⎿  Wrote 35 lines to ~/Softwares/claude2/AI-In-SDLC/ai-in-sdlc-assignment
+     /backend/tests/InvoiceApp.Tests/ArchitectureTests.cs
+       1 using InvoiceApp.Api;
+       2 using InvoiceApp.Api.Controllers;
+       3 using NetArchTest.Rules;
+       4 using Xunit;
+       5 
+       6 namespace InvoiceApp.Tests;
+       7 
+       8 /// <summary>
+       9 /// Layering rules from AGENTS.md, checked against the compiled 
+         assemblies.
+     … +26 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● All 8 tests pass. Next I'll check that the rule actually catches a violation:
+  I'll add a throwaway controller that uses the store directly, run the tests,
+  then delete it.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● I added the architecture test in
+  backend/tests/InvoiceApp.Tests/ArchitectureTests.cs. dotnet test 
+  backend/InvoiceApp.sln passes, 8 of 8.
+
+  The rule: nothing in InvoiceApp.Api.Controllers may depend on
+  InMemoryInvoiceRepository, the concrete store. Controllers have to go through
+  IInvoiceRepository or ApprovalService. The test also fails if it finds no
+  controllers at all, so a renamed namespace can't make it pass by checking
+  nothing.
+
+  It catches a real violation: I added a throwaway controller that held an
+  InMemoryInvoiceRepository field. The test failed and named it: Offending 
+  types: InvoiceApp.Api.Controllers.ZzProbeController. I then deleted that file,
+  and backend/src is unchanged.
+
+  Changes to InvoiceApp.Tests.csproj:
+  - Added the NetArchTest.Rules 1.3.2 package.
+  - Added a project reference to InvoiceApp.Api, because the tests have to load
+    the controllers' assembly. Before this, the test project referenced only
+    Domain.
+
+  Decisions for you:
+  - A stricter rule would fail today. "Controllers must not use
+    IInvoiceRepository at all" fails, because InvoicesController calls the
+    repository directly for list, get, create and delete
+    (InvoicesController.cs:11,24,44,59,74). Only submit goes through
+    ApprovalService. The create-invoice checks also sit in the controller
+    (InvoicesController.cs:50-58), which AGENTS.md says belongs in Domain.
+    Moving those calls into a Domain service would let us tighten the rule. I
+    haven't changed that code.
+  - The class name departs from the naming convention. AGENTS.md asks for
+    <ClassUnderTest>Tests, but this test covers the controllers as a group
+    rather than one class, so I called it ArchitectureTests. I can rename it if
+    you prefer.
+
+  Nothing is committed yet.
+
+✻ Cogitated for 2m 48s · done 6:46 PM
+
+※ recap: You're documenting and enforcing this app's architecture; the diagrams are in docs/architecture and a passing NetArchTest rule stops controllers using the in-memory store directly. Next, decide whether to move InvoicesController's repository calls into Domain so the rule can be tightened. (disable recaps in /config)
+
+❯ Read ops/ evidence about PayEx. Compare idempotency key + dedupe table,       
+  transactional outbox + worker, and optimistic submit + nightly reconciliation 
+  for exactly-once submission. Give trade-offs and a recommendation.            
+
+● I'll start by reading all of the PayEx evidence under ops/.
+
+  Searched for 2 patterns, ran 4 shell commands (ctrl+o to expand)
+
+● I've read INC-2041. Now I'm checking the PayEx retry change and the remaining
+  files that mention PayEx before comparing the three options.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● I'd use a transactional outbox and worker, with a stable idempotency key sent 
+  to PayEx and a unique-keyed submission table, and keep nightly reconciliation
+  only as a safety net. None of the three options gets exactly-once on its own.
+  Before any of it, we need to find out whether PayEx deduplicates on a key or
+  lets us look up a payment by our reference, and ops/ doesn't say.
+
+  What the PayEx evidence shows
+
+  1. The approval is saved before PayEx is called. deploy-diff.patch:84-85 runs
+     _approvals.Approve(...) and then await _payEx.SubmitAsync(invoice). If
+     PayEx fails, the invoice is already Approved but the caller gets a 500.
+     There are 24 of those 500s in app-logs.txt (e.g. line 129).
+  2. Timeouts leave the outcome unknown. 2.14.0 builds a new HttpClient on every
+     call (deploy-diff.patch:36-40), which drops the 10-second timeout. The
+     logs show TaskCanceledException … HttpClient.Timeout of 100 seconds (e.g.
+     app-logs.txt:179). After a timeout we can't tell whether PayEx took the
+     payment. That ambiguity is the core exactly-once problem.
+  3. Users retry, on different instances.
+     - INV-41360 got a 500 on web-02 and then a 200 five minutes later
+       (app-logs.txt:169,201).
+     - INV-41454 got a 500 and then a 200 on another instance (:243,301).
+     - INV-41340 got four 200 approvals from four different users
+       (:83,170,182,427).
+     - The same invoice also fails PayEx more than once (INV-41539 three times:
+       :185,335,456).
+
+     The service runs on three instances (INC-2041 README:32).
+  4. A retry policy was added later (2.14.3, recent-changes.md:7), and there's a
+     feature/payex-retry branch in the pipeline timings. Retrying a
+     non-idempotent POST turns "unknown outcome" into "possible double payment."
+  5. Peak load is month-end. The heaviest approval window is at month-end
+     (INC-2041 README:28), so failures land at peak volume.
+
+  The ops/ data is invented (ops/README.md:22) and uses a different route
+  (/api/invoices/{id}/approve) than today's code. An invoice ID also repeats
+  before the deploy (INV-41639), so the repeat-approval pattern is suggestive,
+  not proof. The timeout and approve-then-pay points come straight from the diff
+  and hold regardless.
+
+  Comparison
+
+  How it works
+  A. Idempotency key + dedupe table: In the request: insert a
+    PaymentSubmission(InvoiceId UNIQUE, Key,  State) row, call PayEx with the
+    key, then mark the row submitted
+  B. Outbox + worker: In one SQL transaction: set the invoice to Approved and
+    insert an outbox row. A background worker sends to PayEx with retries
+  C. Submit in the request + nightly reconciliation: Call PayEx in the request.
+    Each night, compare our Approved invoices with PayEx's records
+  ────────────────────────────────────────
+  Duplicates from double-clicks, retries and other instances
+  A. Idempotency key + dedupe table: Prevented (unique constraint)
+  B. Outbox + worker: Prevented (one outbox row per invoice)
+  C. Submit in the request + nightly reconciliation: Not prevented; found up to
+    about 24 h later
+  ────────────────────────────────────────
+  Approved but never paid
+  A. Idempotency key + dedupe table: Still possible: approval saved, process
+  dies
+    before the PayEx call
+  B. Outbox + worker: Prevented: approval and payment intent commit together
+  C. Submit in the request + nightly reconciliation: Found the next morning
+  ────────────────────────────────────────
+  Timeout (outcome unknown)
+  A. Idempotency key + dedupe table: Only safe if PayEx honours the key;
+    otherwise the row is stuck "Pending"
+  B. Outbox + worker: Same dependency on the key, but the worker can retry or
+    look the payment up without a user waiting
+  C. Submit in the request + nightly reconciliation: Unresolved until the
+  nightly
+    run
+  ────────────────────────────────────────
+  Worker crash after PayEx succeeds
+  A. Idempotency key + dedupe table: n/a
+  B. Outbox + worker: Worker resends, so the PayEx key is still required
+  C. Submit in the request + nightly reconciliation: n/a
+  ────────────────────────────────────────
+  Approval latency and coupling to PayEx (the INC-2041 failure)
+  A. Idempotency key + dedupe table: Still coupled: slow PayEx means slow or
+    failing approvals
+  B. Outbox + worker: Decoupled: approve stays at about 100 ms and PayEx outages
+
+    queue up
+  C. Submit in the request + nightly reconciliation: Still coupled
+  ────────────────────────────────────────
+  What the user sees
+  A. Idempotency key + dedupe table: Approved and paid, or an error
+  B. Outbox + worker: "Approved, payment pending", so a payment status is needed
+
+    in the API and UI
+  C. Submit in the request + nightly reconciliation: Approved; mistakes surface
+    later
+  ────────────────────────────────────────
+  Cost to build
+  A. Idempotency key + dedupe table: Low: one table and one header
+  B. Outbox + worker: Medium: outbox table, a background service, row claiming
+    across 3 instances, alerts on stuck rows
+  C. Submit in the request + nightly reconciliation: Low code, but needs a PayEx
+
+    list/report API and a manual process for fixing mismatches
+  ────────────────────────────────────────
+  Operational risk
+  A. Idempotency key + dedupe table: Low
+  B. Outbox + worker: Rows can sit unsent silently. INC-2047 is that kind of
+    failure (events queued but never consumed), so it needs lag and age alerts
+  C. Submit in the request + nightly reconciliation: Double payments become
+  money
+    already sent and must be refunded by hand
+  ────────────────────────────────────────
+  Exactly-once?
+  A. Idempotency key + dedupe table: Only if PayEx deduplicates
+  B. Outbox + worker: Exactly-once in effect, if PayEx deduplicates or supports
+    lookup-by-reference
+  C. Submit in the request + nightly reconciliation: No: duplicates and misses
+    can happen and are corrected afterwards
+
+  Recommendation
+
+  Use B and include A inside it. The outbox row is the dedupe record, and it
+  carries a key fixed per invoice (for example invoice:{Id}:payment:1), which
+  goes to PayEx as an idempotency key on every attempt. Run C as a daily safety
+  check that alerts rather than fixes anything automatically, because no
+  mechanism here survives every failure.
+
+  Why:
+  - It's the only option that fixes both failures in the evidence.
+    Approved-but-unpaid is covered by the single transaction. The approval
+    request no longer depends on PayEx being fast, which was the INC-2041
+    failure.
+  - It makes retries safe. The 2.14.3 retry policy then retries a send that
+    PayEx can deduplicate, not a raw POST.
+  - It fits the conventions. PaymentSubmission and its states go in Domain. The
+    PayEx adapter and the worker (a BackgroundService) go in Api. AGENTS.md
+    rules out the ops diff's controller-level call.
+  - C alone is the wrong fit for payments. A duplicate payment is money already
+    sent, and month-end is when the most of them would happen.
+
+  Find out before building:
+  1. Does PayEx accept an idempotency key or deduplicate on our reference? Map()
+     sends invoice.Id as its first field (deploy-diff.patch:66-69), so it
+     might. If not, can we look a payment up by our reference? If neither,
+     exactly-once isn't possible: after a timeout, mark the payment Unknown,
+     don't retry automatically, and let reconciliation and a human resolve it.
+  2. Can approval become "Approved, payment pending"? That's a product and
+     finance decision, because the API, UI and payment status change.
+  3. The pending-only check has to be enforced by the database. Today
+     ApprovalService only checks that the invoice is pending, and that check
+     isn't atomic (see approval-sequence.md). With SQL it needs a unique
+     constraint plus a rowversion or a conditional UPDATE … WHERE Status = 
+     'PendingApproval'.
+
+  Two fixes are separate from this choice and needed either way: create the
+  client through IHttpClientFactory with a 10-second timeout, and log PayEx
+  errors under a PayEx category rather than [Notifications].
+
+  I can write this up as an ADR in docs/architecture/ or publish it as a
+  shareable page.
+
+✻ Crunched for 1m 26s · done 6:51 PM
+
+❯ I prefer option C instead. Should it be wise decision?                        
+
+● Not on its own. Option C detects double and missed payments after they happen;
+  it doesn't prevent them. For payments that matters, because a duplicate is
+  money already sent, and you'd find out up to a day later and have to recover
+  it by hand.
+
+  Why the evidence argues against C alone
+
+  - Unknown outcomes are routine, not rare. In one 90-minute window of INC-2041
+    there are about 106 PayEx errors, including 100-second timeouts where we
+    can't tell whether PayEx took the payment (app-logs.txt:179). With C, every
+    one of those waits for the nightly run.
+  - Users retry, and C does nothing to stop the second attempt. The pattern is a
+    500 followed by a successful retry on another instance (INV-41360,
+    INV-41454), and one invoice was approved four times (INV-41340). The 2.14.3
+    retry policy adds automatic retries on top. Under C, each of those can
+    become a second payment.
+  - Failures cluster at month-end (INC-2041 README:28). That's when
+    reconciliation finds the most problems and finance has the least time to fix
+    them.
+  - C needs something from PayEx we haven't confirmed. Nightly reconciliation
+    needs a way to list or query PayEx payments by our reference, and nothing in
+    ops/ shows PayEx has one. Without it, C can't be built at all.
+
+  When C is a reasonable choice
+
+  - Volume is low, so a day's mismatches can be fixed by hand.
+  - Finance agrees that a duplicate that sits for up to 24 hours and is refunded
+    manually is acceptable.
+  - PayEx has a list or report API we can match against.
+  - It's an interim step with a date to move to something stronger.
+
+  If you go with C, add these two things
+
+  They're cheap and remove most of the duplicate risk without an outbox:
+
+  1. A unique PaymentSubmission(InvoiceId) row, written before calling PayEx. If
+     the row already exists, don't call PayEx again; return its current state.
+     This blocks the second attempt from retries, double-clicks and other
+     instances. It's about one table and a dozen lines.
+  2. A stable idempotency key or reference on every PayEx call, with no 
+     automatic retry on timeout. Mark the payment Unknown and let reconciliation
+     settle it. Disable the 2.14.3 retry policy for this call unless PayEx
+     deduplicates.
+
+  Those two additions are option A, done in the request. A plus C is a
+  defensible choice: much simpler than an outbox, with prevention for the common
+  case and reconciliation as the backstop. What it leaves unsolved is that
+  approvals still slow down or fail when PayEx does, which was the INC-2041
+  failure itself.
+
+  My answer: C alone is not a wise choice for payments. A plus C is a
+  reasonable, lower-cost choice if finance accepts next-day detection for the
+  remaining unknown outcomes. Either way, first confirm what PayEx supports: an
+  idempotency key, lookup by reference, and a list or report API.
+
+✻ Churned for 13s · done 6:52 PM
+
+❯ How does your choice fail at 3 a.m. on the last day of the month?             
+
+● It fails quietly. The design's main benefit, that approvals keep working when
+  PayEx doesn't, is also its main risk. In INC-2041 the 5xx alert fired within
+  minutes. Under my design the same PayEx trouble produces no 5xx at all:
+  approvals return 200 and unpaid rows pile up in the outbox. If the only alert
+  is on error rate, as in INC-2041, the first person to notice is finance at 9
+  a.m. on the first day of the new month.
+
+  INC-2047 is already this kind of failure: the publisher logged success with no
+  errors (publisher-logs.txt:32) while notifications quietly stopped going out.
+
+  How it breaks, most dangerous first
+
+  #: 1
+  Trigger at 3 a.m.: PayEx times out, and PayEx doesn't deduplicate on our key
+    (still unconfirmed)
+  What happens: The worker retries and the payment is sent twice. Nobody is
+    watching
+  Who notices: Reconciliation the next night, if PayEx has a report API
+  What has to be in place: Confirm PayEx behaviour before go-live. If it doesn't
+
+    deduplicate: no automatic retry after a timeout. Mark the payment Unknown
+  and
+     look it up instead
+  ────────────────────────────────────────
+  #: 2
+  Trigger at 3 a.m.: PayEx is down or slow for hours
+  What happens: The backlog grows. Approvals still return 200. No 5xx, so the
+    existing alert stays silent
+  Who notices: Finance in the morning: "approved but not paid", across the
+    month-end cut-off
+  What has to be in place: An alert on the age of the oldest unsent row (e.g.
+    over 15 min pages on-call), not on error rate
+  ────────────────────────────────────────
+  #: 3
+  Trigger at 3 a.m.: PayEx key expired or rotated (recent-changes.md:33)
+  What happens: Every call gets 401. The worker treats it as temporary and
+    retries for ever
+  Who notices: Same as #2
+  What has to be in place: Classify 401/403 as non-retryable and page
+  immediately
+  ────────────────────────────────────────
+  #: 4
+  Trigger at 3 a.m.: One bad invoice that PayEx rejects with 4xx (amount,
+    currency, customer data)
+  What happens: If rows are processed in order, it blocks every row behind it
+  Who notices: Same as #2
+  What has to be in place: Count attempts per row, back off, set the row aside
+    after N failures, and never let one row block the rest
+  ────────────────────────────────────────
+  #: 5
+  Trigger at 3 a.m.: An instance is recycled mid-send (this happened at
+    app-logs.txt:88), or PayEx takes longer than the worker's claim on a row
+  What happens: The claim expires, another instance resends, and the result
+    depends on PayEx deduplication again
+  Who notices: Only reconciliation
+  What has to be in place: A claim timeout longer than the PayEx timeout plus
+    margin, and a fixed key per invoice so a resend is a no-op
+  ────────────────────────────────────────
+  #: 6
+  Trigger at 3 a.m.: Azure SQL failover or throttling at month-end peak
+  What happens: The send to PayEx succeeds but the worker can't mark the row as
+    sent, so the row is resent
+  Who notices: Only reconciliation
+  What has to be in place: Same as #5: the idempotency key carries this
+  ────────────────────────────────────────
+  #: 7
+  Trigger at 3 a.m.: A release overnight changes the outbox row format
+  What happens: Instances still on the old release can't read new rows, or the
+    reverse
+  Who notices: Backlog alert, if it exists
+  What has to be in place: Version the payload, and keep old and new readers
+    working through a rollout. INC-2047 was a format change that broke a
+  consumer
+  ────────────────────────────────────────
+  #: 8
+  Trigger at 3 a.m.: Reconciliation runs while the worker is still clearing a
+    backlog
+  What happens: It reports false "missing payments". If someone wired it to fix
+    things automatically, it pays twice
+  Who notices: On-call, at 3 a.m., under pressure
+  What has to be in place: Reconciliation only alerts, never pays. Ignore rows
+    younger than the backlog age. Agree whether the period cut-off is UTC or
+    local time
+  ────────────────────────────────────────
+  #: 9
+  Trigger at 3 a.m.: On-call is paged and runs "resend everything still pending"
+  What happens: Mass duplicates if PayEx doesn't deduplicate
+  Who notices: Finance, too late
+  What has to be in place: A runbook that says to look each payment up first and
+
+    resend only confirmed misses, with a named approver (INC-2047 already
+    requires one)
+
+  What this says about the recommendation
+
+  - Everything hangs on one unverified fact. Rows 1, 5, 6 and 9 are all safe
+    only if PayEx honours our idempotency key or lets us look a payment up by
+    reference. If it does neither, my design isn't exactly-once either. It just
+    moves the duplicate risk from the request into the worker.
+  - The outbox needs its own monitoring before it ships. It needs at least two
+    signals:
+    - the age of the oldest unsent row
+    - the count of rows set aside after repeated failures
+
+    Both should page the 24x7 on-call. Without them the design is worse at 3
+    a.m. than the synchronous version, which at least fails loudly.
+  - Month-end adds a business question the code can't answer. If an invoice is
+    approved at 23:58 and paid at 00:20, which period does the payment belong
+    to? Finance needs to decide that, and the payment status has to show
+    "pending" so their reports don't mistake a backlog for a loss.
+
+  So the recommendation stands, with conditions: B is the better design only if
+  PayEx deduplicates, the backlog-age alert and setting-aside of failing rows
+  ship with it, and reconciliation can alert but never send payments. If any of
+  those can't be met, the A + C version from the last answer is the safer
+  choice, because its failures are loud and limited to the one request that
+  failed.
+
+✻ Cooked for 34s · done 6:54 PM
+
+❯ What does it cost to build and to run?                                        
+
+● Measured in engineer time, B costs roughly 1.5–2× as much to build as A + C.
+  In Azure spend, B adds close to nothing. The running costs that matter are
+  people's time: on-call time for B, and finance's manual work for A + C. These
+  are estimates from the code and the ops/ evidence, not quotes.
+
+  Assumptions
+
+  - One engineer who knows .NET, with a PayEx sandbox available.
+  - Code review and QA time are not included.
+  - Azure SQL, shared sessions across three instances, and real sign-in are
+    needed whichever option you pick, so they're left out of the comparison.
+  - Invoice volume comes from INC-2041: about 320 approvals in 90 minutes at
+    month-end peak, roughly 3–4 a minute.
+
+  Cost to build (engineer-days)
+
+  Work: Shared: a proper PayEx client (IHttpClientFactory, 10 s timeout, sorting
+
+    errors into retryable and not)
+  A + C: 2–3
+  B (outbox + key + reconciliation alerts): 2–3
+  ────────────────────────────────────────
+  Work: Shared: PaymentSubmission model and its states in Domain, with tests
+  A + C: 2
+  B (outbox + key + reconciliation alerts): 2
+  ────────────────────────────────────────
+  Work: Shared: payment status in the API and UI
+  A + C: 1–2
+  B (outbox + key + reconciliation alerts): 1–2
+  ────────────────────────────────────────
+  Work: Shared: checks against the PayEx sandbox (what happens with duplicate
+    keys, timeouts, lookups)
+  A + C: 1–2
+  B (outbox + key + reconciliation alerts): 1–2
+  ────────────────────────────────────────
+  Work: Unique row checked during the request, no automatic retry on timeout
+  A + C: 1
+  B (outbox + key + reconciliation alerts): (part of the outbox)
+  ────────────────────────────────────────
+  Work: Saving the approval and the outbox row in one transaction: today's
+    IInvoiceRepository has no notion of a transaction, so this needs a
+    unit-of-work change
+  A + C: n/a
+  B (outbox + key + reconciliation alerts): 2–3
+  ────────────────────────────────────────
+  Work: Background worker: claiming rows across 3 instances, backoff, attempt
+    count, setting failing rows aside
+  A + C: n/a
+  B (outbox + key + reconciliation alerts): 3–5
+  ────────────────────────────────────────
+  Work: Failure tests: kill mid-send, two instances claiming one row, a row
+  PayEx
+    always rejects
+  A + C: n/a
+  B (outbox + key + reconciliation alerts): 3–4
+  ────────────────────────────────────────
+  Work: Alerts on oldest unsent row and on rows set aside, plus a runbook
+  A + C: 0.5
+  B (outbox + key + reconciliation alerts): 1–2
+  ────────────────────────────────────────
+  Work: Reconciliation: fetch PayEx's report, match, alert only
+  A + C: 3–5
+  B (outbox + key + reconciliation alerts): 3–5
+  ────────────────────────────────────────
+  Work: Finance process for fixing mismatches by hand
+  A + C: 1
+  B (outbox + key + reconciliation alerts): 0.5
+  ────────────────────────────────────────
+  Work: Total
+  A + C: ≈ 13–20 days
+  B (outbox + key + reconciliation alerts): ≈ 21–33 days
+
+  The extra 8–13 days for B are the worker and the tests that prove it survives
+  the 3 a.m. scenarios from my last answer. Skipping those tests is how B ends
+  up failing silently.
+
+  Cost to run each month
+
+  Item: New Azure resources
+  A + C: About $0. Reconciliation can run inside the app
+  B: About $0 if the worker runs inside the existing API instances. The outbox
+    table holds one row per approval, tens of thousands a month, so a few MB
+  ────────────────────────────────────────
+  Item: Azure catch
+  A + C: none
+  B: The worker checks SQL for new rows every few seconds. On serverless Azure
+    SQL that stops the database from ever pausing, so you pay the minimum
+  compute
+     around the clock. Use the provisioned tier, which production needs anyway,
+    or have the worker check less often when idle
+  ────────────────────────────────────────
+  Item: Alerts (Azure Monitor)
+  A + C: 1 rule (reconciliation mismatches)
+  B: 2–3 rules (backlog age, rows set aside, reconciliation). A few dollars a
+    month
+  ────────────────────────────────────────
+  Item: PayEx charges
+  A + C: One call per payment, plus a daily report
+  B: One call per payment, plus retries and lookups after timeouts. Unknown
+    whether PayEx charges per API call; ops/ doesn't say
+  ────────────────────────────────────────
+  Item: On-call time
+  A + C: Low: failures appear as user-visible 5xx errors during the day
+  B: Higher: backlog pages, rows to sort through, payload versioning to manage
+  on
+    each release
+  ────────────────────────────────────────
+  Item: Finance and manual work
+  A + C: Grows with PayEx trouble. Every timeout becomes an Unknown payment that
+
+    someone resolves by hand, and every duplicate a manual refund. INC-2041 had
+    about 106 PayEx errors in 90 minutes; on a day like that, that's dozens of
+    cases
+  B: Low: retries clear most failures; reconciliation surfaces only real
+    exceptions
+  ────────────────────────────────────────
+  Item: Cost of a duplicate payment
+  A + C: Possible whenever a timeout's outcome is unknown; recovering the money
+    takes days of staff time and strains the customer relationship
+  B: Possible only if PayEx doesn't deduplicate
+
+  What tips the balance
+
+  - When PayEx is stable, A + C is cheaper overall: about 8–13 fewer days to
+    build, and a little reconciliation work each day.
+  - When PayEx has a day like INC-2041, especially at month-end, A + C's manual
+    workload jumps, and a single duplicate payment can cost more staff time than
+    the 8–13 days B would have taken.
+  - If PayEx doesn't deduplicate, B's extra build cost buys much less, and A + C
+    becomes the better deal.
+
+  So the decision depends on two numbers I don't have: how often PayEx actually
+  times out in production, and what one duplicate payment costs finance to
+  recover. The PayEx sandbox checks in the shared work answer the first. Finance
+  can estimate the second. If you share those, I can turn this into a
+  break-even comparison, or add it to an ADR in docs/architecture/.
+
+✻ Churned for 38s · done 6:57 PM
+
+※ recap: You're choosing how the approval service submits each payment to PayEx exactly once, and I've just costed the outbox design against in-request submission plus nightly reconciliation. Next, find out whether PayEx deduplicates on an idempotency key, which decides between them. (disable recaps in /config)

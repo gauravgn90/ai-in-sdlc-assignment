@@ -1,0 +1,2637 @@
+ ▐▛███▛█   Claude Code v2.1.322
+▝▜██████▀  Opus 5.5 · Claude Pro
+ ▝▝   ▝▝   ~/Softwares/claude2/AI-In-SDLC/ai-in-sdlc-assignment
+
+  Fable 5.2 is here for your longest and toughest coding tasks, and is included in your plan until November 16. It draws down usage faster than Opus 5.5. Switch with /model.
+  1 more notice hidden
+
+❯ Using the Mermaid MCP, draw a C4-style container diagram of this codebase as  
+  it exists today, not as described in ops/. For every element, cite the file   
+  or class it comes from. List separately anything you inferred without a       
+  citation.                                                                     
+
+  Ran 4 shell commands (ctrl+o to expand)
+
+● The untracked c4-container.md draft checks out against the source, and I've
+  reworded one e2e line since there are no e2e tests yet. Next I'll render the
+  diagram with the Mermaid MCP. · summary
+
+  Called mermaid (ctrl+o to expand)
+
+● Bash(mv mermaid-2026-11-10T13-01-58-639Z-uxt47y.png
+      docs/architecture/c4-container.png && ls -la docs/architecture)
+  ⎿  total 208
+     drwxrwxr-x 2 gauravkumar07 gauravkumar07   4096 Nov 10 18:32 .
+     drwxrwxr-x 4 gauravkumar07 gauravkumar07   4096 Nov 10 18:14 ..
+     … +4 lines (ctrl+o to expand)
+  ⎿  2 files changed (binary, mode only or too large to show)
+  ⎿  (files that changed while this command ran, by the command or by 
+     another process; a convenience view, not a review or audit of the 
+     command)
+
+  Read 1 file (ctrl+o to expand)
+
+● Mermaid's C4 layout produced overlapping edge labels, so I'll redraw it as a
+  flowchart in C4 style, which lays out more cleanly.
+
+  Called mermaid (ctrl+o to expand)
+
+● Bash(mv -f mermaid-2026-11-10T13-02-20-295Z-d3esoz.png
+      docs/architecture/c4-container.png)
+  ⎿  2 files changed (binary, mode only or too large to show)
+
+  Read 1 file (ctrl+o to expand)
+
+● The render is clean. Now I'll update the markdown so its source matches the
+  image.
+
+● Bash(cd /home/gauravkumar07/Softwares/claude2/AI-In-SDLC/ai-in-sdlc-assignment
+      /docs/architecture && python3 - <<'EOF'
+      import re…)
+  ⎿  6:![C4 container diagram](c4-container.png)
+     62:| Web UI | `backend/src/InvoiceApp.Api/wwwroot/index.html`, `wwwroo
+     t/app.js`, `wwwroot/styles.css`. `fetch('/api…')` with Bearer header a
+     … +5 lines (ctrl+o to expand)
+  ⎿  Updated docs/architecture/c4-container.md (+46 -33)
+       3  Scope: the code in this repository as it exists now. Nothing un
+          der `ops/` is
+       4  represented, so there is no database, message topic or PayEx in
+          tegration.
+       5  
+       6 -```mermaid                                                     
+       7 -C4Container                                                    
+       8 -    title Invoice Approval Demo App: containers (as built)     
+       6 +![C4 container diagram](c4-container.png)                      
+       7  
+      10 -    Person(approver, "Approver", "Signs in as demo.approver. Ca
+         -n create, submit, approve and reject invoices.")               
+      11 -    Person(admin, "Admin", "Signs in as demo.admin. Same as App
+         -rover, plus can delete invoices.")                             
+       8 +Rendered with the Mermaid MCP server. Mermaid's native `C4Conta
+         +iner` layout put edge labels on top of each other, so this vers
+         +ion is a flowchart styled in C4 colours. Blue is runtime and gr
+         +ey is dev or CI only.                                          
+       9  
+      13 -    System_Boundary(app, "Invoice Approval Demo App") {        
+      14 -        Container(webui, "Web UI", "HTML, CSS, vanilla JavaScri
+         -pt", "Sign-in form, invoice list, create and submit, approve an
+         -d reject. Keeps the bearer token in sessionStorage.")          
+      15 -        Container(api, "InvoiceApp.Api", "ASP.NET Core 8 Web AP
+         -I", "Serves the Web UI's static files and the /api/auth, /api/i
+         -nvoices and /api/approvals endpoints. Bearer-session middleware
+         - and RequireRole filter.")                                     
+      16 -        Container(domain, "InvoiceApp.Domain", ".NET 8 class li
+         -brary, in-process", "ApprovalService handles the Draft to Pendi
+         -ngApproval to Approved or Rejected lifecycle. Defines IInvoiceR
+         -epository.")                                                   
+      17 -        ContainerDb(invoicestore, "In-memory invoice store", "I
+         -nMemoryInvoiceRepository, List of Invoice, in-process", "Seeded
+         - with INV-1001 to INV-1005. No database.")                     
+      18 -        ContainerDb(sessionstore, "In-memory session store", "S
+         -essionStore, ConcurrentDictionary, in-process", "Opaque 16-byte
+         - hex bearer token mapped to Username and Role.")               
+      19 -        ContainerDb(users, "Demo user config", "appsettings.jso
+         -n Users section", "Two demo accounts with plaintext passwords a
+         -nd roles.")                                                    
+      20 -    }                                                          
+      10 +```mermaid                                                     
+      11 +flowchart TB                                                   
+      12 +    approver["<b>Approver</b><br/>[Person]<br/>demo.approver<br
+         +/>create, submit, approve, reject"]                            
+      13 +    admin["<b>Admin</b><br/>[Person]<br/>demo.admin<br/>as Appr
+         +over, plus delete"]                                            
+      14  
+      22 -    System_Boundary(dev, "Development and delivery (not deploye
+         -d)") {                                                         
+      23 -        Container(unittests, "InvoiceApp.Tests", "xUnit, .NET 8
+         -", "ApprovalServiceTests against FakeInvoiceRepository.")      
+      24 -        Container(e2e, "e2e suite", "Playwright, Chromium", "Co
+         -nfig and webServer launcher only. tests/ and pages/ are empty."
+         -)                                                              
+      25 -        Container(ci, "CI workflow", "GitHub Actions, ubuntu-la
+         -test", "On push or PR to main it builds and runs dotnet test. I
+         -t does not run e2e.")                                          
+      26 -    }                                                          
+      15 +    subgraph app["Invoice Approval Demo App: one ASP.NET Core p
+         +rocess"]                                                       
+      16 +        direction TB                                           
+      17 +        webui["<b>Web UI</b><br/>[Container: HTML, CSS, vanilla
+         + JS]<br/>wwwroot/index.html, app.js<br/>Bearer token in session
+         +Storage"]                                                      
+      18 +        api["<b>InvoiceApp.Api</b><br/>[Container: ASP.NET Core
+         + 8 Web API]<br/>AuthController, InvoicesController, ApprovalsCo
+         +ntroller<br/>SessionAuthMiddleware, RequireRoleAttribute"]     
+      19 +        domain["<b>InvoiceApp.Domain</b><br/>[Class library, in
+         +-process]<br/>ApprovalService, IInvoiceRepository"]            
+      20 +        invoicestore[("<b>In-memory invoice store</b><br/>[InMe
+         +moryInvoiceRepository]<br/>seeded INV-1001..1005, no DB")]     
+      21 +        sessionstore[("<b>In-memory session store</b><br/>[Sess
+         +ionStore, ConcurrentDictionary]<br/>token to Username and Role"
+         +)]                                                             
+      22 +        users[("<b>Demo user config</b><br/>[appsettings.json U
+         +sers]<br/>2 demo accounts")]                                   
+      23 +    end                                                        
+      24  
+     … 62 more lines (ctrl+o to expand)
+
+● I drew the container diagram with the Mermaid MCP and saved it to
+  docs/architecture/c4-container.png. It covers only what is in backend/, e2e/
+  and .github/; nothing from ops/ is in it, so it shows no database, message
+  topic or payment provider.
+
+  docs/architecture/c4-container.md already held a draft of this diagram. I
+  checked each of its citations against the code before using it. I made three
+  changes:
+  - Layout: Mermaid's built-in C4 layout put the arrow labels on top of each
+    other. I redrew it as a flowchart in C4 colours: blue for what runs, grey
+    for dev and CI tooling.
+  - e2e arrow: it is now dashed and says "configured to launch". e2e/tests/ is
+    empty, so nothing actually drives the UI yet.
+  - Line numbers: I corrected the app.js citation.
+
+  Elements and where each comes from
+
+  Element: Approver, Admin (people)
+  Source: appsettings.json Users section. Roles enforced by
+    ApprovalsController.cs:9 [RequireRole("Approver","Admin")] and
+    InvoicesController.cs:73 [RequireRole("Admin")] on Delete
+  ────────────────────────────────────────
+  Element: Web UI
+  Source: wwwroot/index.html, app.js, styles.css. Calls fetch('/api…') with a
+    Bearer token at app.js:16-23 and keeps the session in sessionStorage at
+    app.js:4,108
+  ────────────────────────────────────────
+  Element: InvoiceApp.Api
+  Source: InvoiceApp.Api.csproj (Microsoft.NET.Sdk.Web, net8.0), Program.cs.
+    Endpoints come from AuthController, InvoicesController and
+    ApprovalsController. Errors are mapped to status codes in
+    ApiControllerBase.Handle
+  ────────────────────────────────────────
+  Element: Sign-in check and role filter
+  Source: Auth/SessionAuthMiddleware.cs (Program.cs:21),
+    Auth/RequireRoleAttribute.cs
+  ────────────────────────────────────────
+  Element: InvoiceApp.Domain
+  Source: ApprovalService.cs, IInvoiceRepository.cs, Invoice.cs,
+    InvoiceStatus.cs. Referenced from InvoiceApp.Api.csproj:8. ApprovalService
+  is
+     registered as scoped at Program.cs:15
+  ────────────────────────────────────────
+  Element: In-memory invoice store
+  Source: InMemoryInvoiceRepository.cs, registered as a singleton at
+    Program.cs:14
+  ────────────────────────────────────────
+  Element: In-memory session store
+  Source: Auth/SessionStore.cs, registered as a singleton at Program.cs:13
+  ────────────────────────────────────────
+  Element: Demo user config
+  Source: appsettings.json Users, bound to DemoUsersOptions
+  (Auth/UserSession.cs)
+    at Program.cs:12, and read by AuthController.Login
+  ────────────────────────────────────────
+  Element: Address localhost:5000
+  Source: Properties/launchSettings.json:6
+  ────────────────────────────────────────
+  Element: InvoiceApp.Tests
+  Source: InvoiceApp.Tests.csproj (xUnit; references only the Domain project),
+    ApprovalServiceTests.cs, FakeInvoiceRepository.cs
+  ────────────────────────────────────────
+  Element: e2e suite
+  Source: e2e/playwright.config.ts:9,14 (baseURL, webServer.command) and
+    e2e/package.json
+  ────────────────────────────────────────
+  Element: CI workflow
+  Source: .github/workflows/ci.yml:17-18 (dotnet build and dotnet test only)
+
+  Inferred, with no file to cite
+
+  - No external systems: I concluded this from what the code lacks. There is no
+    HttpClient, DbContext, message bus or payment client, and no NuGet packages
+    outside the test project.
+  - Domain drawn as its own box: strict C4 would call a class library a
+    component, not a container. I kept it separate to show the project boundary,
+    but it runs inside the API process.
+  - In-memory stores drawn as data stores: they are objects inside the API
+    process, not separately deployed containers.
+  - State is lost on restart, and only one instance can run: this follows from
+    the singleton in-memory stores; no file states it.
+  - No CORS needed: the UI uses relative /api paths, and Program.cs sets up no
+    CORS.
+  - Both roles can create and submit invoices: InvoicesController has no
+    class-level RequireRole, so signing in is the only check.
+  - CI does not run e2e: ci.yml has no Playwright steps.
+  - Left out on purpose: DiscountCalculator.cs, which exists but nothing uses
+    it, and the Playwright and Mermaid MCP servers in .mcp.json, which are
+    developer tooling.
+
+  Both files in docs/architecture/ are uncommitted. I haven't committed them.
+
+✻ Crunched for 1m 31s · done Tuesday 6:32 PM
+
+❯ Now draw a Mermaid sequence diagram for the invoice approval path, from HTTP  
+  request to store. Cite the file and method for every step.                    
+
+  Called mermaid, ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd /home/gauravkumar07/Softwares/claude2/AI-In-SDLC/ai-in-sdlc-assignment
+      && mv mermaid-2026-11-10T13-05-32-627Z-wcf5y4.png
+      docs/architecture/approval-sequence.…)
+  ⎿  72:      approve.addEventListener('click', () => decide(`/approvals/${
+     invoice.id}/approve`, {}));
+     73:      reject.addEventListener('click', () => decide(`/approvals/${i
+     … +6 lines (ctrl+o to expand)
+  ⎿  2 files changed (binary, mode only or too large to show)
+
+  Read 1 file, ran 1 shell command (ctrl+o to expand)
+
+● Write(docs/architecture/approval-sequence.md)
+  ⎿  Wrote 92 lines to docs/architecture/approval-sequence.md
+       1 # Sequence: approve an invoice (as built today)
+       2 
+       3 This follows `POST /api/approvals/{invoiceId}/approve` from the 
+         HTTP request to the in-memory store, with the failure branches. 
+         Nothing under `ops/` is represented. Paths are relative to `back
+         end/src/`.
+       4 
+       5 ![Approval sequence](approval-sequence.png)
+       6 
+       7 Rendered with the Mermaid MCP server. Step numbers come from `au
+     … +86 lines (~6 KB) (ctrl+o to expand)
+
+● I drew the sequence diagram with the Mermaid MCP and wrote it up with a
+  citation for each step. Neither file is committed yet.
+
+  - Diagram: docs/architecture/approval-sequence.png
+  - Write-up: docs/architecture/approval-sequence.md, which has the diagram
+    source and a 24-row table giving the file, line and class.method for every
+    numbered step.
+
+  The path
+
+  1. Client: the Approve button runs decide() and then api() in
+     app.js:72,82,16-19. That sends POST /api/approvals/{id}/approve with a
+     Bearer token.
+  2. SessionAuthMiddleware.InvokeAsync looks the token up with SessionStore.Get.
+     If there is no session it returns 401. Otherwise it puts the session in
+     HttpContext.Items.
+  3. RequireRoleAttribute.OnActionExecuting checks the role is Approver or Admin
+     (ApprovalsController.cs:9). If not, it returns 403.
+  4. ApprovalsController.Approve gets the username with GetSession() and wraps
+     the call in ApiControllerBase.Handle.
+  5. ApprovalService.Approve works in this order:
+     - It looks the invoice up through Find, which calls
+       InMemoryInvoiceRepository.GetById. A missing invoice ends in 404.
+     - EnsurePending checks the status. If the invoice isn't pending the request
+       ends in 409.
+     - It sets Status, DecidedBy and DecidedAt.
+     - It calls InMemoryInvoiceRepository.Update, which takes a lock and
+       replaces the list entry.
+  6. Handle returns 200 with the invoice as JSON, with the status written as a
+     string (Program.cs:10).
+
+  Inferred, with no citation
+
+  - Order of 401 and 403: this comes from the middleware order in Program.cs
+    plus how ASP.NET Core runs middleware before filters, not from anything this
+    repo states.
+  - No 400 on approve: Handle catches ArgumentException, but Approve never
+    throws one, so the diagram leaves that branch out.
+  - Possible race (not tested): GetById hands back the stored object itself, not
+    a copy. So ApprovalService changes the stored invoice before Update and
+    outside the lock. Two approvals of the same invoice at the same moment could
+    both pass EnsurePending. No test covers this.
+  - Left out: the step where the framework creates ApprovalService for each
+    request (Program.cs:15), and the UI's follow-up refresh(), which is a
+    separate GET /api/invoices.
+
+✻ Crunched for 1m 6s · done Tuesday 6:36 PM
+
+※ recap: You asked for architecture diagrams of the codebase as it is today; the C4 container diagram and the cited approval sequence diagram are both done in docs/architecture/. Next, review the two diagrams and say whether to commit them. (disable recaps in /config)
+
+❯ Draw the target state with Azure SQL and PayEx integration. Mark components   
+  that don’t exist yet with a dashed style or a ‘NOT BUILT’ label               
+
+● I'll check what ops/ says about the planned deployment so the target state is
+  based on the repo's own plans rather than my guesses.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● The ops/ docs describe production as Azure Service Bus, three load-balanced
+  instances and PayEx over HTTPS, but never name a database. So I'm using the
+  database you asked for and will note that in the write-up, and I'm drawing the
+  diagram now. · summary
+
+  Called mermaid (ctrl+o to expand)
+
+● Bash(mv mermaid-2026-11-10T13-12-22-267Z-zb5c4g.png
+      docs/architecture/c4-container-target.png)
+  ⎿  2 files changed (binary, mode only or too large to show)
+
+  Read 1 file (ctrl+o to expand)
+
+● The render is clean, with every not-built element dashed and labelled. Now
+  I'll write the doc with sources.
+
+● Write(docs/architecture/c4-container-target.md)
+  ⎿  Wrote 109 lines to docs/architecture/c4-container-target.md
+       1 # C4 container diagram: target state (Azure SQL + PayEx)
+       2 
+       3 **This is a plan, not a description of the running system.** For
+          what exists today, see [c4-container.md](c4-container.md).
+       4 
+       5 ![Target-state container diagram](c4-container-target.png)
+       6 
+       7 **Legend**
+       8 
+       9 | Style | Meaning |
+     … +100 lines (ctrl+o to expand)
+  Ran 1 shell command (ctrl+o to expand)
+
+● Two ops line references were off by one, and the PayEx client citation needs a
+  caveat. I'll fix both.
+
+● Bash(cd /home/gauravkumar07/Softwares/claude2/AI-In-SDLC/ai-in-sdlc-assignment
+      /docs/architecture && sed -i
+      's/`deploy-diff.patch:86`/`deploy-diff.patch:85`/; s/`depl…)
+  ⎿  94:| PayExClient: HttpClient, timeout, retry | Not built | `ops/incide
+     nts/INC-2041/deploy-diff.patch:114-117` (typed `AddHttpClient<IPayExCl
+     ient, PayExClient>`,
+     … +6 lines (ctrl+o to expand)
+  ⎿  Updated docs/architecture/c4-container-target.md (+3 -3)
+      91  | Azure SQL Database | Not built | **Your request.** `ops/READM
+          E.md:17` only says "a database" and names no product |
+      92  | SqlInvoiceRepository | Not built | Name inferred. AGENTS.md r
+          ule: "Repositories are interfaces in Domain with an in-memory i
+          mplementation in Api"; the interface is `IInvoiceRepository.cs`
+           |
+      93  | PayEx (external) | Not integrated | `ops/README.md:17-18`, `o
+          ps/incidents/INC-2041/README.md:30-31` ("calls it over HTTPS") 
+          |
+      94 -| PayExClient: HttpClient, timeout, retry | Not built | `ops/in
+         -cidents/INC-2041/deploy-diff.patch:114-117` (typed `AddHttpClie
+         -nt<IPayExClient, PayExClient>`, base URL, 10 s timeout), `:136`
+         - (config), `ops/incidents/INC-2047/recent-changes.md:7` (retry 
+         -policy) |                                                      
+      94 +| PayExClient: HttpClient, timeout, retry | Not built | `ops/in
+         +cidents/INC-2041/deploy-diff.patch:114-117` (typed `AddHttpClie
+         +nt<IPayExClient, PayExClient>`, base URL, 10 s timeout: the pre
+         +-2.14.0 registration, which that diff *removes*), `:136` (confi
+         +g), `ops/incidents/INC-2047/recent-changes.md:7` (retry policy)
+         + |                                                             
+      95  | Azure Service Bus topic `invoice-events` | Not built | `ops/i
+          ncidents/INC-2047/servicebus-status.txt:5` (`az servicebus topi
+          c show … sb-invoice-prod --name invoice-events`) |
+      96  | EventPublisher | Not built | `ops/incidents/INC-2047/publishe
+          r-logs.txt:2` (`Component: EventPublisher`) |
+      97  | Event names `invoice.approved` | Not built | `ops/incidents/I
+          NC-2047/recent-changes.md:15,24`, `servicebus-status.txt:59` |
+     ...
+       99  
+      100  ## Inferred, with no direct citation
+      101  
+      102 -- **PayEx goes behind a Domain port (`IPaymentGateway`), not i
+          -n the controller.** The `ops` diff calls `_payEx.SubmitAsync` 
+          -from `ApprovalsController.Approve` (`deploy-diff.patch:86`). A
+          -GENTS.md forbids business logic in controllers, so I drew a Do
+          -main interface with the PayEx adapter in Api, the same pattern
+          - as `IInvoiceRepository`. The interface name is mine.         
+      103 -- **The order of approve, pay and publish isn't decided.** The
+          - `ops` diff saves the approval first and then calls PayEx sync
+          -hronously (`deploy-diff.patch:85-86`), and INC-2041 is "approv
+          -als slow and failing" after that change. Whether payment is sy
+          -nc or async, and whether to use an outbox so that saving to th
+          -e database and publishing to the topic either both happen or n
+          -either does, are open decisions. The diagram doesn't settle th
+          -em.                                                           
+      102 +- **PayEx goes behind a Domain port (`IPaymentGateway`), not i
+          +n the controller.** The `ops` diff calls `_payEx.SubmitAsync` 
+          +from `ApprovalsController.Approve` (`deploy-diff.patch:85`). A
+          +GENTS.md forbids business logic in controllers, so I drew a Do
+          +main interface with the PayEx adapter in Api, the same pattern
+          + as `IInvoiceRepository`. The interface name is mine.         
+      103 +- **The order of approve, pay and publish isn't decided.** The
+          + `ops` diff saves the approval first and then calls PayEx sync
+          +hronously (`deploy-diff.patch:84-85`), and INC-2041 is "approv
+          +als slow and failing" after that change. Whether payment is sy
+          +nc or async, and whether to use an outbox so that saving to th
+          +e database and publishing to the topic either both happen or n
+          +either does, are open decisions. The diagram doesn't settle th
+          +em.                                                           
+      104  - **Sessions must be shared or stateless.** With three instanc
+           es, a token issued by one instance is unknown to the others. T
+           hat follows from `SessionStore` being an in-memory singleton c
+           ombined with INC-2041:32. The fix isn't chosen: Redis, SQL, si
+           gned JWTs, or sticky sessions.
+      105  - **Demo users in `appsettings.json` would also need replacing
+           ** for production, with real identity and secrets. Not drawn, 
+           because `ops/` doesn't name a provider.
+      106  - **A secrets store (e.g. Key Vault) for the PayEx key and the
+            SQL connection.** Implied by "Rotated the PayEx API key" (`re
+           cent-changes.md:33`), but no store is named, so it isn't drawn
+           .
+
+● I drew the target-state diagram with the Mermaid MCP and saved it to
+  docs/architecture/c4-container-target.png. The write-up, with sources and the
+  legend, is in docs/architecture/c4-container-target.md. Like the earlier
+  files, these aren't committed.
+
+  How it's styled:
+  - Dashed red border with a [NOT BUILT] label: load balancer,
+    SqlInvoiceRepository, Azure SQL Database, the PayEx client and its
+    interface, EventPublisher, the Azure Service Bus topic invoice-events, and
+    its three subscribers (notification-worker, audit-archive,
+    analytics-export).
+  - Dashed grey border: PayEx, which is external and has no integration yet.
+  - Solid blue: the Web UI, Api and Domain, which exist today.
+  - Solid blue with an orange border: parts that exist but must change.
+    SessionStore keeps sessions in memory, so with three instances a token from
+    one instance is unknown to the others. InMemoryInvoiceRepository gets
+    replaced by SQL; I kept it on the diagram for development and tests.
+  - Dotted arrows: relationships that don't exist yet.
+
+  Where the planned parts come from:
+  - Azure SQL is from your request. ops/README.md:17 only says "a database" and
+    names no product.
+  - Everything else planned is cited from ops/. The three instances behind a
+    load balancer are in INC-2041's README. The PayEx client setup is in its
+    deploy diff. The Service Bus topic and its subscriptions are in INC-2047's
+    az servicebus output. AGENTS.md says ops/ describes the planned production
+    deployment, so it's the right source for a target state. The doc also says
+    everything in ops/ is invented scenario data.
+
+  Design choices I made that aren't in any file:
+  - PayEx goes through an interface in Domain (IPaymentGateway, my name), not 
+    the controller. The ops diff calls PayEx directly from
+    ApprovalsController.Approve (deploy-diff.patch:85), but AGENTS.md says no
+    business logic in controllers.
+  - Left open on purpose:
+    - Whether the PayEx call happens during the approve request or afterwards.
+      The ops version does it during the request, and INC-2041 is titled
+      "approvals slow and failing" after that change.
+    - Whether to use an outbox so that saving to the database and publishing to
+      the topic either both happen or neither does.
+    - How sessions get shared across instances.
+    - Which data-access library to use.
+  - Not drawn: a secrets store (the PayEx key rotation implies one, but none is
+    named), real identity in place of the demo users, and the unclear
+    Notifications.LegacyEndpoint.
+
+✻ Worked for 1m 24s · done Tuesday 6:43 PM
+
+❯ Write one architecture test using NetArchTest, e.g. controllers must not      
+  depend on the store directly. Add it to the test project.                     
+
+● I'll check the .NET SDK and confirm the NetArchTest package is available
+  before editing.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd /home/gauravkumar07/Softwares/claude2/AI-In-SDLC/ai-in-sdlc-assignment
+      /backend/tests/InvoiceApp.Tests && dotnet add package NetArchTest.Rules
+      --version 1.3.2…)
+  ⎿  info : PackageReference for package 'NetArchTest.Rules' version '1.3.2
+     ' added to file '/home/gauravkumar07/Softwares/claude2/AI-In-SDLC/ai-i
+     n-sdlc-assignment/backend/tests/InvoiceApp.Tests/InvoiceApp.Tests.cspr
+     … +20 lines (ctrl+o to expand)
+  ⎿  Updated backend/tests/InvoiceApp.Tests/InvoiceApp.Tests.csproj (+2 -0)
+       7    </PropertyGroup>
+       8    <ItemGroup>
+       9      <PackageReference Include="Microsoft.NET.Test.Sdk" Version=
+          "17.11.1" />
+      10 +    <PackageReference Include="NetArchTest.Rules" Version="1.3.
+         +2" />                                                          
+      11      <PackageReference Include="xunit" Version="2.9.2" />
+      12      <PackageReference Include="xunit.runner.visualstudio" Versi
+          on="2.8.2" />
+      13      <PackageReference Include="coverlet.collector" Version="6.0
+          .2" />
+      14    </ItemGroup>
+      15    <ItemGroup>
+      16      <ProjectReference Include="..\..\src\InvoiceApp.Domain\Invo
+          iceApp.Domain.csproj" />
+      17 +    <ProjectReference Include="..\..\src\InvoiceApp.Api\Invoice
+         +App.Api.csproj" />                                             
+      18    </ItemGroup>
+      19  </Project>
+
+● Write(backend/tests/InvoiceApp.Tests/ArchitectureTests.cs)
+  ⎿  Wrote 35 lines to backend/tests/InvoiceApp.Tests/ArchitectureTests.cs
+       1 using InvoiceApp.Api;
+       2 using InvoiceApp.Api.Controllers;
+       3 using NetArchTest.Rules;
+       4 using Xunit;
+       5 
+       6 namespace InvoiceApp.Tests;
+       7 
+       8 /// <summary>
+       9 /// Layering rules from AGENTS.md, checked against the compiled 
+         assemblies.
+     … +26 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● All 8 tests pass. Next I'll check that the rule actually catches a violation:
+  I'll add a throwaway controller that uses the store directly, run the tests,
+  then delete it.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● I added the architecture test in
+  backend/tests/InvoiceApp.Tests/ArchitectureTests.cs. dotnet test 
+  backend/InvoiceApp.sln passes, 8 of 8.
+
+  The rule: nothing in InvoiceApp.Api.Controllers may depend on
+  InMemoryInvoiceRepository, the concrete store. Controllers have to go through
+  IInvoiceRepository or ApprovalService. The test also fails if it finds no
+  controllers at all, so a renamed namespace can't make it pass by checking
+  nothing.
+
+  It catches a real violation: I added a throwaway controller that held an
+  InMemoryInvoiceRepository field. The test failed and named it: Offending 
+  types: InvoiceApp.Api.Controllers.ZzProbeController. I then deleted that file,
+  and backend/src is unchanged.
+
+  Changes to InvoiceApp.Tests.csproj:
+  - Added the NetArchTest.Rules 1.3.2 package.
+  - Added a project reference to InvoiceApp.Api, because the tests have to load
+    the controllers' assembly. Before this, the test project referenced only
+    Domain.
+
+  Decisions for you:
+  - A stricter rule would fail today. "Controllers must not use
+    IInvoiceRepository at all" fails, because InvoicesController calls the
+    repository directly for list, get, create and delete
+    (InvoicesController.cs:11,24,44,59,74). Only submit goes through
+    ApprovalService. The create-invoice checks also sit in the controller
+    (InvoicesController.cs:50-58), which AGENTS.md says belongs in Domain.
+    Moving those calls into a Domain service would let us tighten the rule. I
+    haven't changed that code.
+  - The class name departs from the naming convention. AGENTS.md asks for
+    <ClassUnderTest>Tests, but this test covers the controllers as a group
+    rather than one class, so I called it ArchitectureTests. I can rename it if
+    you prefer.
+
+  Nothing is committed yet.
+
+✻ Cogitated for 2m 48s · done Tuesday 6:46 PM
+
+※ recap: You're documenting and enforcing this app's architecture; the diagrams are in docs/architecture and a passing NetArchTest rule stops controllers using the in-memory store directly. Next, decide whether to move InvoicesController's repository calls into Domain so the rule can be tightened. (disable recaps in /config)
+
+❯ Read ops/ evidence about PayEx. Compare idempotency key + dedupe table,       
+  transactional outbox + worker, and optimistic submit + nightly reconciliation 
+  for exactly-once submission. Give trade-offs and a recommendation.            
+
+● I'll start by reading all of the PayEx evidence under ops/.
+
+  Searched for 2 patterns, ran 4 shell commands (ctrl+o to expand)
+
+● I've read INC-2041. Now I'm checking the PayEx retry change and the remaining
+  files that mention PayEx before comparing the three options.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● I'd use a transactional outbox and worker, with a stable idempotency key sent 
+  to PayEx and a unique-keyed submission table, and keep nightly reconciliation
+  only as a safety net. None of the three options gets exactly-once on its own.
+  Before any of it, we need to find out whether PayEx deduplicates on a key or
+  lets us look up a payment by our reference, and ops/ doesn't say.
+
+  What the PayEx evidence shows
+
+  1. The approval is saved before PayEx is called. deploy-diff.patch:84-85 runs
+     _approvals.Approve(...) and then await _payEx.SubmitAsync(invoice). If
+     PayEx fails, the invoice is already Approved but the caller gets a 500.
+     There are 24 of those 500s in app-logs.txt (e.g. line 129).
+  2. Timeouts leave the outcome unknown. 2.14.0 builds a new HttpClient on every
+     call (deploy-diff.patch:36-40), which drops the 10-second timeout. The
+     logs show TaskCanceledException … HttpClient.Timeout of 100 seconds (e.g.
+     app-logs.txt:179). After a timeout we can't tell whether PayEx took the
+     payment. That ambiguity is the core exactly-once problem.
+  3. Users retry, on different instances.
+     - INV-41360 got a 500 on web-02 and then a 200 five minutes later
+       (app-logs.txt:169,201).
+     - INV-41454 got a 500 and then a 200 on another instance (:243,301).
+     - INV-41340 got four 200 approvals from four different users
+       (:83,170,182,427).
+     - The same invoice also fails PayEx more than once (INV-41539 three times:
+       :185,335,456).
+
+     The service runs on three instances (INC-2041 README:32).
+  4. A retry policy was added later (2.14.3, recent-changes.md:7), and there's a
+     feature/payex-retry branch in the pipeline timings. Retrying a
+     non-idempotent POST turns "unknown outcome" into "possible double payment."
+  5. Peak load is month-end. The heaviest approval window is at month-end
+     (INC-2041 README:28), so failures land at peak volume.
+
+  The ops/ data is invented (ops/README.md:22) and uses a different route
+  (/api/invoices/{id}/approve) than today's code. An invoice ID also repeats
+  before the deploy (INV-41639), so the repeat-approval pattern is suggestive,
+  not proof. The timeout and approve-then-pay points come straight from the diff
+  and hold regardless.
+
+  Comparison
+
+  How it works
+  A. Idempotency key + dedupe table: In the request: insert a
+    PaymentSubmission(InvoiceId UNIQUE, Key,  State) row, call PayEx with the
+    key, then mark the row submitted
+  B. Outbox + worker: In one SQL transaction: set the invoice to Approved and
+    insert an outbox row. A background worker sends to PayEx with retries
+  C. Submit in the request + nightly reconciliation: Call PayEx in the request.
+    Each night, compare our Approved invoices with PayEx's records
+  ────────────────────────────────────────
+  Duplicates from double-clicks, retries and other instances
+  A. Idempotency key + dedupe table: Prevented (unique constraint)
+  B. Outbox + worker: Prevented (one outbox row per invoice)
+  C. Submit in the request + nightly reconciliation: Not prevented; found up to
+    about 24 h later
+  ────────────────────────────────────────
+  Approved but never paid
+  A. Idempotency key + dedupe table: Still possible: approval saved, process
+  dies
+    before the PayEx call
+  B. Outbox + worker: Prevented: approval and payment intent commit together
+  C. Submit in the request + nightly reconciliation: Found the next morning
+  ────────────────────────────────────────
+  Timeout (outcome unknown)
+  A. Idempotency key + dedupe table: Only safe if PayEx honours the key;
+    otherwise the row is stuck "Pending"
+  B. Outbox + worker: Same dependency on the key, but the worker can retry or
+    look the payment up without a user waiting
+  C. Submit in the request + nightly reconciliation: Unresolved until the
+  nightly
+    run
+  ────────────────────────────────────────
+  Worker crash after PayEx succeeds
+  A. Idempotency key + dedupe table: n/a
+  B. Outbox + worker: Worker resends, so the PayEx key is still required
+  C. Submit in the request + nightly reconciliation: n/a
+  ────────────────────────────────────────
+  Approval latency and coupling to PayEx (the INC-2041 failure)
+  A. Idempotency key + dedupe table: Still coupled: slow PayEx means slow or
+    failing approvals
+  B. Outbox + worker: Decoupled: approve stays at about 100 ms and PayEx outages
+
+    queue up
+  C. Submit in the request + nightly reconciliation: Still coupled
+  ────────────────────────────────────────
+  What the user sees
+  A. Idempotency key + dedupe table: Approved and paid, or an error
+  B. Outbox + worker: "Approved, payment pending", so a payment status is needed
+
+    in the API and UI
+  C. Submit in the request + nightly reconciliation: Approved; mistakes surface
+    later
+  ────────────────────────────────────────
+  Cost to build
+  A. Idempotency key + dedupe table: Low: one table and one header
+  B. Outbox + worker: Medium: outbox table, a background service, row claiming
+    across 3 instances, alerts on stuck rows
+  C. Submit in the request + nightly reconciliation: Low code, but needs a PayEx
+
+    list/report API and a manual process for fixing mismatches
+  ────────────────────────────────────────
+  Operational risk
+  A. Idempotency key + dedupe table: Low
+  B. Outbox + worker: Rows can sit unsent silently. INC-2047 is that kind of
+    failure (events queued but never consumed), so it needs lag and age alerts
+  C. Submit in the request + nightly reconciliation: Double payments become
+  money
+    already sent and must be refunded by hand
+  ────────────────────────────────────────
+  Exactly-once?
+  A. Idempotency key + dedupe table: Only if PayEx deduplicates
+  B. Outbox + worker: Exactly-once in effect, if PayEx deduplicates or supports
+    lookup-by-reference
+  C. Submit in the request + nightly reconciliation: No: duplicates and misses
+    can happen and are corrected afterwards
+
+  Recommendation
+
+  Use B and include A inside it. The outbox row is the dedupe record, and it
+  carries a key fixed per invoice (for example invoice:{Id}:payment:1), which
+  goes to PayEx as an idempotency key on every attempt. Run C as a daily safety
+  check that alerts rather than fixes anything automatically, because no
+  mechanism here survives every failure.
+
+  Why:
+  - It's the only option that fixes both failures in the evidence.
+    Approved-but-unpaid is covered by the single transaction. The approval
+    request no longer depends on PayEx being fast, which was the INC-2041
+    failure.
+  - It makes retries safe. The 2.14.3 retry policy then retries a send that
+    PayEx can deduplicate, not a raw POST.
+  - It fits the conventions. PaymentSubmission and its states go in Domain. The
+    PayEx adapter and the worker (a BackgroundService) go in Api. AGENTS.md
+    rules out the ops diff's controller-level call.
+  - C alone is the wrong fit for payments. A duplicate payment is money already
+    sent, and month-end is when the most of them would happen.
+
+  Find out before building:
+  1. Does PayEx accept an idempotency key or deduplicate on our reference? Map()
+     sends invoice.Id as its first field (deploy-diff.patch:66-69), so it
+     might. If not, can we look a payment up by our reference? If neither,
+     exactly-once isn't possible: after a timeout, mark the payment Unknown,
+     don't retry automatically, and let reconciliation and a human resolve it.
+  2. Can approval become "Approved, payment pending"? That's a product and
+     finance decision, because the API, UI and payment status change.
+  3. The pending-only check has to be enforced by the database. Today
+     ApprovalService only checks that the invoice is pending, and that check
+     isn't atomic (see approval-sequence.md). With SQL it needs a unique
+     constraint plus a rowversion or a conditional UPDATE … WHERE Status = 
+     'PendingApproval'.
+
+  Two fixes are separate from this choice and needed either way: create the
+  client through IHttpClientFactory with a 10-second timeout, and log PayEx
+  errors under a PayEx category rather than [Notifications].
+
+  I can write this up as an ADR in docs/architecture/ or publish it as a
+  shareable page.
+
+✻ Crunched for 1m 26s · done Tuesday 6:51 PM
+
+❯ I prefer option C instead. Should it be wise decision?                        
+
+● Not on its own. Option C detects double and missed payments after they happen;
+  it doesn't prevent them. For payments that matters, because a duplicate is
+  money already sent, and you'd find out up to a day later and have to recover
+  it by hand.
+
+  Why the evidence argues against C alone
+
+  - Unknown outcomes are routine, not rare. In one 90-minute window of INC-2041
+    there are about 106 PayEx errors, including 100-second timeouts where we
+    can't tell whether PayEx took the payment (app-logs.txt:179). With C, every
+    one of those waits for the nightly run.
+  - Users retry, and C does nothing to stop the second attempt. The pattern is a
+    500 followed by a successful retry on another instance (INV-41360,
+    INV-41454), and one invoice was approved four times (INV-41340). The 2.14.3
+    retry policy adds automatic retries on top. Under C, each of those can
+    become a second payment.
+  - Failures cluster at month-end (INC-2041 README:28). That's when
+    reconciliation finds the most problems and finance has the least time to fix
+    them.
+  - C needs something from PayEx we haven't confirmed. Nightly reconciliation
+    needs a way to list or query PayEx payments by our reference, and nothing in
+    ops/ shows PayEx has one. Without it, C can't be built at all.
+
+  When C is a reasonable choice
+
+  - Volume is low, so a day's mismatches can be fixed by hand.
+  - Finance agrees that a duplicate that sits for up to 24 hours and is refunded
+    manually is acceptable.
+  - PayEx has a list or report API we can match against.
+  - It's an interim step with a date to move to something stronger.
+
+  If you go with C, add these two things
+
+  They're cheap and remove most of the duplicate risk without an outbox:
+
+  1. A unique PaymentSubmission(InvoiceId) row, written before calling PayEx. If
+     the row already exists, don't call PayEx again; return its current state.
+     This blocks the second attempt from retries, double-clicks and other
+     instances. It's about one table and a dozen lines.
+  2. A stable idempotency key or reference on every PayEx call, with no 
+     automatic retry on timeout. Mark the payment Unknown and let reconciliation
+     settle it. Disable the 2.14.3 retry policy for this call unless PayEx
+     deduplicates.
+
+  Those two additions are option A, done in the request. A plus C is a
+  defensible choice: much simpler than an outbox, with prevention for the common
+  case and reconciliation as the backstop. What it leaves unsolved is that
+  approvals still slow down or fail when PayEx does, which was the INC-2041
+  failure itself.
+
+  My answer: C alone is not a wise choice for payments. A plus C is a
+  reasonable, lower-cost choice if finance accepts next-day detection for the
+  remaining unknown outcomes. Either way, first confirm what PayEx supports: an
+  idempotency key, lookup by reference, and a list or report API.
+
+✻ Churned for 13s · done Tuesday 6:52 PM
+
+❯ How does your choice fail at 3 a.m. on the last day of the month?             
+
+● It fails quietly. The design's main benefit, that approvals keep working when
+  PayEx doesn't, is also its main risk. In INC-2041 the 5xx alert fired within
+  minutes. Under my design the same PayEx trouble produces no 5xx at all:
+  approvals return 200 and unpaid rows pile up in the outbox. If the only alert
+  is on error rate, as in INC-2041, the first person to notice is finance at 9
+  a.m. on the first day of the new month.
+
+  INC-2047 is already this kind of failure: the publisher logged success with no
+  errors (publisher-logs.txt:32) while notifications quietly stopped going out.
+
+  How it breaks, most dangerous first
+
+  #: 1
+  Trigger at 3 a.m.: PayEx times out, and PayEx doesn't deduplicate on our key
+    (still unconfirmed)
+  What happens: The worker retries and the payment is sent twice. Nobody is
+    watching
+  Who notices: Reconciliation the next night, if PayEx has a report API
+  What has to be in place: Confirm PayEx behaviour before go-live. If it doesn't
+
+    deduplicate: no automatic retry after a timeout. Mark the payment Unknown
+  and
+     look it up instead
+  ────────────────────────────────────────
+  #: 2
+  Trigger at 3 a.m.: PayEx is down or slow for hours
+  What happens: The backlog grows. Approvals still return 200. No 5xx, so the
+    existing alert stays silent
+  Who notices: Finance in the morning: "approved but not paid", across the
+    month-end cut-off
+  What has to be in place: An alert on the age of the oldest unsent row (e.g.
+    over 15 min pages on-call), not on error rate
+  ────────────────────────────────────────
+  #: 3
+  Trigger at 3 a.m.: PayEx key expired or rotated (recent-changes.md:33)
+  What happens: Every call gets 401. The worker treats it as temporary and
+    retries for ever
+  Who notices: Same as #2
+  What has to be in place: Classify 401/403 as non-retryable and page
+  immediately
+  ────────────────────────────────────────
+  #: 4
+  Trigger at 3 a.m.: One bad invoice that PayEx rejects with 4xx (amount,
+    currency, customer data)
+  What happens: If rows are processed in order, it blocks every row behind it
+  Who notices: Same as #2
+  What has to be in place: Count attempts per row, back off, set the row aside
+    after N failures, and never let one row block the rest
+  ────────────────────────────────────────
+  #: 5
+  Trigger at 3 a.m.: An instance is recycled mid-send (this happened at
+    app-logs.txt:88), or PayEx takes longer than the worker's claim on a row
+  What happens: The claim expires, another instance resends, and the result
+    depends on PayEx deduplication again
+  Who notices: Only reconciliation
+  What has to be in place: A claim timeout longer than the PayEx timeout plus
+    margin, and a fixed key per invoice so a resend is a no-op
+  ────────────────────────────────────────
+  #: 6
+  Trigger at 3 a.m.: Azure SQL failover or throttling at month-end peak
+  What happens: The send to PayEx succeeds but the worker can't mark the row as
+    sent, so the row is resent
+  Who notices: Only reconciliation
+  What has to be in place: Same as #5: the idempotency key carries this
+  ────────────────────────────────────────
+  #: 7
+  Trigger at 3 a.m.: A release overnight changes the outbox row format
+  What happens: Instances still on the old release can't read new rows, or the
+    reverse
+  Who notices: Backlog alert, if it exists
+  What has to be in place: Version the payload, and keep old and new readers
+    working through a rollout. INC-2047 was a format change that broke a
+  consumer
+  ────────────────────────────────────────
+  #: 8
+  Trigger at 3 a.m.: Reconciliation runs while the worker is still clearing a
+    backlog
+  What happens: It reports false "missing payments". If someone wired it to fix
+    things automatically, it pays twice
+  Who notices: On-call, at 3 a.m., under pressure
+  What has to be in place: Reconciliation only alerts, never pays. Ignore rows
+    younger than the backlog age. Agree whether the period cut-off is UTC or
+    local time
+  ────────────────────────────────────────
+  #: 9
+  Trigger at 3 a.m.: On-call is paged and runs "resend everything still pending"
+  What happens: Mass duplicates if PayEx doesn't deduplicate
+  Who notices: Finance, too late
+  What has to be in place: A runbook that says to look each payment up first and
+
+    resend only confirmed misses, with a named approver (INC-2047 already
+    requires one)
+
+  What this says about the recommendation
+
+  - Everything hangs on one unverified fact. Rows 1, 5, 6 and 9 are all safe
+    only if PayEx honours our idempotency key or lets us look a payment up by
+    reference. If it does neither, my design isn't exactly-once either. It just
+    moves the duplicate risk from the request into the worker.
+  - The outbox needs its own monitoring before it ships. It needs at least two
+    signals:
+    - the age of the oldest unsent row
+    - the count of rows set aside after repeated failures
+
+    Both should page the 24x7 on-call. Without them the design is worse at 3
+    a.m. than the synchronous version, which at least fails loudly.
+  - Month-end adds a business question the code can't answer. If an invoice is
+    approved at 23:58 and paid at 00:20, which period does the payment belong
+    to? Finance needs to decide that, and the payment status has to show
+    "pending" so their reports don't mistake a backlog for a loss.
+
+  So the recommendation stands, with conditions: B is the better design only if
+  PayEx deduplicates, the backlog-age alert and setting-aside of failing rows
+  ship with it, and reconciliation can alert but never send payments. If any of
+  those can't be met, the A + C version from the last answer is the safer
+  choice, because its failures are loud and limited to the one request that
+  failed.
+
+✻ Cooked for 34s · done Tuesday 6:54 PM
+
+❯ What does it cost to build and to run?                                        
+
+● Measured in engineer time, B costs roughly 1.5–2× as much to build as A + C.
+  In Azure spend, B adds close to nothing. The running costs that matter are
+  people's time: on-call time for B, and finance's manual work for A + C. These
+  are estimates from the code and the ops/ evidence, not quotes.
+
+  Assumptions
+
+  - One engineer who knows .NET, with a PayEx sandbox available.
+  - Code review and QA time are not included.
+  - Azure SQL, shared sessions across three instances, and real sign-in are
+    needed whichever option you pick, so they're left out of the comparison.
+  - Invoice volume comes from INC-2041: about 320 approvals in 90 minutes at
+    month-end peak, roughly 3–4 a minute.
+
+  Cost to build (engineer-days)
+
+  Work: Shared: a proper PayEx client (IHttpClientFactory, 10 s timeout, sorting
+
+    errors into retryable and not)
+  A + C: 2–3
+  B (outbox + key + reconciliation alerts): 2–3
+  ────────────────────────────────────────
+  Work: Shared: PaymentSubmission model and its states in Domain, with tests
+  A + C: 2
+  B (outbox + key + reconciliation alerts): 2
+  ────────────────────────────────────────
+  Work: Shared: payment status in the API and UI
+  A + C: 1–2
+  B (outbox + key + reconciliation alerts): 1–2
+  ────────────────────────────────────────
+  Work: Shared: checks against the PayEx sandbox (what happens with duplicate
+    keys, timeouts, lookups)
+  A + C: 1–2
+  B (outbox + key + reconciliation alerts): 1–2
+  ────────────────────────────────────────
+  Work: Unique row checked during the request, no automatic retry on timeout
+  A + C: 1
+  B (outbox + key + reconciliation alerts): (part of the outbox)
+  ────────────────────────────────────────
+  Work: Saving the approval and the outbox row in one transaction: today's
+    IInvoiceRepository has no notion of a transaction, so this needs a
+    unit-of-work change
+  A + C: n/a
+  B (outbox + key + reconciliation alerts): 2–3
+  ────────────────────────────────────────
+  Work: Background worker: claiming rows across 3 instances, backoff, attempt
+    count, setting failing rows aside
+  A + C: n/a
+  B (outbox + key + reconciliation alerts): 3–5
+  ────────────────────────────────────────
+  Work: Failure tests: kill mid-send, two instances claiming one row, a row
+  PayEx
+    always rejects
+  A + C: n/a
+  B (outbox + key + reconciliation alerts): 3–4
+  ────────────────────────────────────────
+  Work: Alerts on oldest unsent row and on rows set aside, plus a runbook
+  A + C: 0.5
+  B (outbox + key + reconciliation alerts): 1–2
+  ────────────────────────────────────────
+  Work: Reconciliation: fetch PayEx's report, match, alert only
+  A + C: 3–5
+  B (outbox + key + reconciliation alerts): 3–5
+  ────────────────────────────────────────
+  Work: Finance process for fixing mismatches by hand
+  A + C: 1
+  B (outbox + key + reconciliation alerts): 0.5
+  ────────────────────────────────────────
+  Work: Total
+  A + C: ≈ 13–20 days
+  B (outbox + key + reconciliation alerts): ≈ 21–33 days
+
+  The extra 8–13 days for B are the worker and the tests that prove it survives
+  the 3 a.m. scenarios from my last answer. Skipping those tests is how B ends
+  up failing silently.
+
+  Cost to run each month
+
+  Item: New Azure resources
+  A + C: About $0. Reconciliation can run inside the app
+  B: About $0 if the worker runs inside the existing API instances. The outbox
+    table holds one row per approval, tens of thousands a month, so a few MB
+  ────────────────────────────────────────
+  Item: Azure catch
+  A + C: none
+  B: The worker checks SQL for new rows every few seconds. On serverless Azure
+    SQL that stops the database from ever pausing, so you pay the minimum
+  compute
+     around the clock. Use the provisioned tier, which production needs anyway,
+    or have the worker check less often when idle
+  ────────────────────────────────────────
+  Item: Alerts (Azure Monitor)
+  A + C: 1 rule (reconciliation mismatches)
+  B: 2–3 rules (backlog age, rows set aside, reconciliation). A few dollars a
+    month
+  ────────────────────────────────────────
+  Item: PayEx charges
+  A + C: One call per payment, plus a daily report
+  B: One call per payment, plus retries and lookups after timeouts. Unknown
+    whether PayEx charges per API call; ops/ doesn't say
+  ────────────────────────────────────────
+  Item: On-call time
+  A + C: Low: failures appear as user-visible 5xx errors during the day
+  B: Higher: backlog pages, rows to sort through, payload versioning to manage
+  on
+    each release
+  ────────────────────────────────────────
+  Item: Finance and manual work
+  A + C: Grows with PayEx trouble. Every timeout becomes an Unknown payment that
+
+    someone resolves by hand, and every duplicate a manual refund. INC-2041 had
+    about 106 PayEx errors in 90 minutes; on a day like that, that's dozens of
+    cases
+  B: Low: retries clear most failures; reconciliation surfaces only real
+    exceptions
+  ────────────────────────────────────────
+  Item: Cost of a duplicate payment
+  A + C: Possible whenever a timeout's outcome is unknown; recovering the money
+    takes days of staff time and strains the customer relationship
+  B: Possible only if PayEx doesn't deduplicate
+
+  What tips the balance
+
+  - When PayEx is stable, A + C is cheaper overall: about 8–13 fewer days to
+    build, and a little reconciliation work each day.
+  - When PayEx has a day like INC-2041, especially at month-end, A + C's manual
+    workload jumps, and a single duplicate payment can cost more staff time than
+    the 8–13 days B would have taken.
+  - If PayEx doesn't deduplicate, B's extra build cost buys much less, and A + C
+    becomes the better deal.
+
+  So the decision depends on two numbers I don't have: how often PayEx actually
+  times out in production, and what one duplicate payment costs finance to
+  recover. The PayEx sandbox checks in the shared work answer the first. Finance
+  can estimate the second. If you share those, I can turn this into a
+  break-even comparison, or add it to an ADR in docs/architecture/.
+
+✻ Churned for 38s · done Tuesday 6:57 PM
+
+※ recap: You're choosing how the approval service submits each payment to PayEx exactly once, and I've just costed the outbox design against in-request submission plus nightly reconciliation. Next, find out whether PayEx deduplicates on an idempotency key, which decides between them. (disable recaps in /config)
+
+❯ /export                                                                       
+  ⎿  Conversation exported to:
+     /home/gauravkumar07/Softwares/claude2/AI-In-SDLC/ai-in-sdlc-assignment/ops/
+     2026-11-10-192310-using-the-mermaid-mcp-draw-a-c4-style-container.txt
+
+※ recap: We're choosing how to submit approved invoices to PayEx exactly once; I recommended an outbox with idempotency keys and estimated build and run costs. Next, confirm whether PayEx deduplicates on a key or reference, which decides between that and the cheaper option.
+
+❯ Read ops/incidents/INC-2041 and write a first-response incident summary:      
+  what’s broken, impact, likely cause, evidence with file:line, and suggested   
+  next step. Mark anything you’re guessing.                                     
+● I'll check the metrics and pin down exact line numbers before writing the
+  summary.
+
+  Searched for 1 pattern, ran 1 shell command (ctrl+o to expand)
+
+● INC-2041: first-response summary
+
+  Prepared from the evidence pack exported 11:14Z on 14 Jan 2026. Claims marked 
+  [GUESS] are my inference and aren't shown directly by the evidence.
+
+  What's broken
+
+  Approving invoices is slow and partly failing on all three instances (web-01,
+  web-02, web-03) since about 10:03Z. Release 2.14.0 is still live, and nothing
+  has been rolled back.
+
+  Impact
+
+  - Errors: from 10:03Z to 11:09Z there were 1,501 5xx responses out of 24,564 
+    requests (6.1%), against an alert threshold of 2% (metrics.csv:25-91,
+    alert.md:5). Before 10:03Z there were none.
+  - Latency: p95 went from about 120 ms to 7–17 s, peaking at 17,152 ms at
+    10:44Z (metrics.csv:2-24, :66). Requests that succeed are slow too, for
+    example a 4,099 ms 200 at app-logs.txt:264.
+  - Business: it's the second-to-last working day of the month, the busiest
+    approval window (README.md:28). Finance reported the problem at 10:09Z
+    (alert.md:14-15).
+  - [GUESS] Invoices may be approved but not paid, or paid twice. 2.14.0 saves
+    the approval before calling PayEx (deploy-diff.patch:84-85), so a 500 can
+    leave an invoice Approved with no payment. Users also retried failed
+    approvals and later got 200s (INV-41360: app-logs.txt:169, :201), which may
+    have sent a second payment. Neither is confirmed.
+
+  Likely cause (high confidence, not yet proven)
+
+  2.14.0 runs out of outbound connections because it creates a new HttpClient 
+  for every PayEx call, and month-end traffic makes it happen fast.
+
+  Evidence: 2.14.0 builds new HttpClient on every SubmitAsync call
+  Where: deploy-diff.patch:46-50
+  ────────────────────────────────────────
+  Evidence: …and removes the pooled, factory-managed client with its 10 s
+  timeout
+  Where: deploy-diff.patch:114-119
+  ────────────────────────────────────────
+  Evidence: The deploy finished at 09:58:41Z, just before errors began
+  Where: app-logs.txt:70-71
+  ────────────────────────────────────────
+  Evidence: Outbound connections climb steadily from about 370 to about 2,800,
+    much faster than traffic
+  Where: metrics.csv:20-62
+  ────────────────────────────────────────
+  Evidence: The errors are port exhaustion: SocketException (10048): Only one 
+    usage of each socket address… on all 3 instances (81 of 106 PayEx errors)
+  Where: app-logs.txt:157 onward; 34/35/37 per instance
+  ────────────────────────────────────────
+  Evidence: Timeouts are 100 s, the .NET default, so the configured 10 s isn't
+    applied
+  Where: app-logs.txt:179; config still says 00:00:10 at deploy-diff.patch:136
+  ────────────────────────────────────────
+  Evidence: Restarting web-02 at 10:41Z freed its connections: outbound fell
+  from
+    2,790 to 2,469 and 5xx dipped, then both rose again
+  Where: alert.md:23-24; metrics.csv:62-66
+  ────────────────────────────────────────
+  Evidence: CPU 25–56% and memory 39–47%: no sign of a CPU or memory limit
+  Where: metrics.csv (whole window)
+  ────────────────────────────────────────
+  Evidence: PayEx's status page was green twice
+  Where: alert.md:19, :25
+
+  Contributing factor: traffic jumped from about 60 to about 350 requests a
+  minute at 09:55Z, three minutes before the deploy (metrics.csv:17). This is
+  month-end volume. It didn't cause the failure, but it made connections run out
+  within minutes.
+
+  Probably not the cause
+
+  - Notifications:LegacyEndpoint deprecation warnings. They repeat every 11
+    minutes, including before the deploy (app-logs.txt:22, :61).
+  - web-03 being recycled for routine maintenance at 10:03:00Z
+    (app-logs.txt:88-90). It lines up exactly with the first latency jump
+    (metrics.csv:25), but all three instances degrade, including the two that
+    weren't recycled. [GUESS] It's a coincidence; I can't rule out that it made
+    things worse locally.
+
+  Evidence gaps (flag before trusting the logs)
+
+  - The log export is sampled or filtered. It has 24 logged 500s, but the
+    metrics count 1,501. The first PayEx ERROR is at 10:19Z (app-logs.txt:157),
+    but 5xx start at 10:04Z. Don't draw conclusions from log counts.
+  - PayEx errors are logged under [Notifications] rather than a PayEx category,
+    which makes them easy to miss in searches.
+  - [GUESS] Why 500s come back after 11–27 s (app-logs.txt:129, :373) when the
+    timeout is 100 s. It may be a load balancer or upstream timeout, but nothing
+    here shows it.
+
+  Suggested next step
+
+  1. Decide: roll back to 2.13.4. This needs a named approver or the incident
+     commander. 2.13.4 ran cleanly for nine days (README.md:26-27). Two things
+     to know before deciding:
+     - Rollback also removes the PayEx call from approvals, since 2.14.0 is what
+       added it (deploy-diff.patch:7). Payments for invoices approved after the
+       rollback won't be sent automatically, so finance must be told.
+     - It also reverts the DTO rename (DecidedBy back from ApprovedBy,
+       deploy-diff.patch:94-97). Check whether the UI or any client already
+       depends on the new name.
+  2. Confirm the cause, read-only, in parallel. On one instance, count
+     connections to the PayEx host by state (ss -tan | grep <payex-ip>). Expect
+     a large and growing number in TIME_WAIT.
+  3. Don't do these:
+     - Restarting instances: it buys about 3 minutes (alert.md:23-24).
+     - Scaling out: it delays connection exhaustion without fixing it.
+     - Turning on PayEx retries: they would add duplicate-payment risk.
+  4. After the rollback, start a payment check for every invoice approved from
+     09:58Z until the rollback. Find invoices that are Approved with no PayEx
+     receipt, and invoices submitted more than once. Finance owns the result.
+  5. Fix forward later: restore AddHttpClient<IPayExClient, PayExClient> with
+     the 10 s timeout, and move the PayEx call out of the approval request, as
+     discussed in the outbox comparison.
+
+  I haven't written this to a file. If you want it in the incident folder or
+  published as a page for the incident channel, I can do either.
+
+✻ Baked for 59s · done Tuesday 7:39 PM
+
+※ recap: You're building architecture docs and analysis for the invoice approval app, and I've just written the first-response summary for incident INC-2041, which exists only in this chat. Next: say whether to save it in the incident folder or publish it for the incident channel.
+
+❯ please do                                                                     
+
+● I'll save the summary to the incident folder, then set up the shareable
+  version.
+
+● Write(ops/incidents/INC-2041/first-response.md)
+  ⎿  Wrote 58 lines to ops/incidents/INC-2041/first-response.md
+      1 # INC-2041: first-response summary
+      2 
+      3 > Training scenario. All names, hosts and figures in this pack ar
+        e invented (`ops/README.md:22-23`).
+      4 
+      5 *Prepared from the evidence pack exported 11:14Z on 14 Jan 2026. 
+        Claims marked **[GUESS]** are inference and aren't shown directly
+         by the evidence. Paths are relative to `ops/incidents/INC-2041/`
+        .*
+      6 
+     … +52 lines (ctrl+o to expand)
+
+● Artifact(quickstart document)
+  ⎿  found the type to start from
+
+● Artifact(→ new artifact from type 
+          https://claude.ai/artifact/Rp9naXUCj2xozpUkyQy19W)
+  ⎿  Created ⧉ https://claude.ai/artifact/UjXM8bJ5KQuY4ypTgv7oMK from 
+     Artifact type ⧉ https://claude.ai/artifact/Rp9naXUCj2xozpUkyQy19W, 
+     read its instructions
+
+  Called Claude Docs 2 times (ctrl+o to expand)
+
+● The outline is in the doc. Filling "What's broken" and "Impact".
+
+  Called Claude Docs (ctrl+o to expand)
+
+● Next: the likely-cause evidence table.
+
+  Called Claude Docs (ctrl+o to expand)
+
+● Last two sections: what to rule out, gaps in the evidence, and the next step.
+
+  Called Claude Docs (ctrl+o to expand)
+
+● I've done both:
+
+  - In the repo: ops/incidents/INC-2041/first-response.md. It isn't committed.
+  - As a shareable doc: ⧉ INC-2041 first-response summary.
+
+  Both carry the same summary, with every point cited by file:line and the
+  guesses marked [GUESS]. Both start with a note that this is a training
+  scenario with invented data. I left out the people's names from the evidence
+  pack and refer to roles instead (on-call, finance, incident commander).
+
+  The doc is private for now, so nobody in the incident channel can open the
+  link until you share it from its Share menu.
+
+✻ Cogitated for 1m 46s · done Tuesday 7:52 PM
+
+※ recap: You're documenting the invoice approval app's architecture and PayEx risks; the INC-2041 first-response summary is now saved in the repo and as a private doc. Next, share that doc from its Share menu so the incident channel can open it.
+
+❯ Read ops/evals. Explain the format of each case, where the expected answer    
+  is, and how to score caught / missed / false alarm.                           
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● The evals are ten small diffs. A reviewer gets one diff and a fixed prompt,
+  and you record per case whether it caught a real defect, missed one, or raised
+  a false alarm. The repo doesn't contain the expected answers. Which cases
+  have defects is deliberately left out, and the answers are with the session
+  facilitator.
+
+  Format of each case
+
+  Each case is a plain unified diff in ops/evals/cases/case-NN.diff. There's no
+  description, title, commit message or comment, just diff --git, ---/+++, hunk
+  headers and changed lines.
+
+  ┌──────┬────────────────────────────────────────────────┬────────────┐
+  │ Case │                File(s) touched                 │ Size (+/−) │
+  ├──────┼────────────────────────────────────────────────┼────────────┤
+  │ 01   │ Api/Controllers/ApprovalsController.cs         │ +12/−0     │
+  ├──────┼────────────────────────────────────────────────┼────────────┤
+  │ 02   │ Api/Controllers/InvoicesController.cs          │ +10/−0     │
+  ├──────┼────────────────────────────────────────────────┼────────────┤
+  │ 03   │ Domain/DiscountCalculator.cs                   │ +2/−2      │
+  ├──────┼────────────────────────────────────────────────┼────────────┤
+  │ 04   │ Domain/ApprovalService.cs                      │ +7/−7      │
+  ├──────┼────────────────────────────────────────────────┼────────────┤
+  │ 05   │ Api/Controllers/InvoicesController.cs          │ +7/−0      │
+  ├──────┼────────────────────────────────────────────────┼────────────┤
+  │ 06   │ tests/InvoiceApp.Tests/ApprovalServiceTests.cs │ +26/−0     │
+  ├──────┼────────────────────────────────────────────────┼────────────┤
+  │ 07   │ Api/Controllers/ApprovalsController.cs         │ +3/−0      │
+  ├──────┼────────────────────────────────────────────────┼────────────┤
+  │ 08   │ Api/InMemoryInvoiceRepository.cs               │ +3/−2      │
+  ├──────┼────────────────────────────────────────────────┼────────────┤
+  │ 09   │ README.md and Api/appsettings.json             │ +6/−2      │
+  ├──────┼────────────────────────────────────────────────┼────────────┤
+  │ 10   │ Api/Controllers/ApiControllerBase.cs           │ +4/−0      │
+  └──────┴────────────────────────────────────────────────┴────────────┘
+
+  Two things to know:
+  - Some diffs are written against the planned version of the code, not today's.
+    For example, case-01's context lines use DecisionResponse and CurrentUser,
+    which don't exist in the current code. They won't apply cleanly with git 
+    apply, and they don't need to: the README says to give the reviewer the diff
+    and nothing else (README.md:24).
+  - Each run uses the same review prompt (README.md:34-36). It asks for file,
+    line, what goes wrong and confidence, or an explicit "nothing found".
+
+  Where the expected answer is
+
+  Not in the repository.
+  - evals/README.md:4-5: "Some contain a defect and some do not; which is which
+    is not recorded here."
+  - ops/README.md:27-30: the packs "deliberately do not state … which cases
+    contain defects… the answers are in the session runbook, not in the
+    repository."
+
+  I searched every case file for markers such as "expected", "answer" or
+  "defect", and found none. To score, you need the answer key from the
+  facilitator's runbook. Until you have it you can record what each review said,
+  but you can't assign a verdict.
+
+  How to run it
+
+  1. Fresh session per case. Context from an earlier case changes the answer
+     (README.md:22-23).
+  2. Give only the diff and the prompt. Don't give repo access, since an agent
+     with repo access could pick up context from elsewhere in the repo.
+  3. Run the full set three times, giving 30 rows (README.md:27-28, matching
+     results-template.csv).
+  4. Change exactly one thing between rounds: the prompt, the model or the
+     context file (README.md:29-30). Record it in model and prompt_version.
+
+  Copy results-template.csv to results.csv. Its columns are run, case, model, 
+  prompt_version, verdict, finding_summary, confidence_reported, notes.
+
+  Scoring each row
+
+  Case's real state (from the key): Has a defect
+  What the review said: Named that defect, for the right reason
+  Verdict: caught
+  ────────────────────────────────────────
+  Case's real state (from the key): Has a defect
+  What the review said: Said nothing, or something vague near the right line
+    ("could be improved"), or the right spot for the wrong reason, or only a
+    different defect
+  Verdict: missed
+  ────────────────────────────────────────
+  Case's real state (from the key): Clean
+  What the review said: Asserted a defect that isn't there
+  Verdict: false alarm
+  ────────────────────────────────────────
+  Case's real state (from the key): Clean
+  What the review said: "Nothing found", or only style suggestions
+  Verdict: correct pass (the README doesn't name this; you need a value for it)
+
+  The README's rules for the hard calls:
+  - Be strict (README.md:40-44). Only a finding that names the actual defect
+    counts. A vague note near the right line doesn't, and a correct conclusion
+    reached for the wrong reason doesn't either. A generous score is one you
+    can't act on.
+  - Style suggestions on a clean case are not false alarms (README.md:46-47).
+    Only claiming a defect that isn't there is.
+
+  Cases the README doesn't settle. These are my suggested conventions; agree
+  them before scoring:
+  - A defect case where the review finds the real defect and also asserts a
+    non-existent one: score caught, and note the extra claim in notes. You can
+    also count it separately as an extra false claim, because false alarms are
+    what make people stop trusting a reviewer (README.md:17-18).
+  - A defect case where the review is confident but wrong: missed, with the
+    reported confidence in confidence_reported. Over time this shows whether the
+    reviewer's stated confidence means anything.
+
+  Turning rows into the three numbers
+
+  - Catch rate = caught ÷ (defect cases × runs)
+  - Miss rate = 1 − catch rate
+  - False-alarm rate = false alarms ÷ (clean cases × runs)
+
+  Use the clean cases as the denominator for false alarms, not all ten. Report
+  all three per model and prompt version. Look at differences between the three
+  runs too, since a reviewer that catches a case only one time in three isn't
+  reliable on it.
+
+  I haven't judged which cases contain defects. Doing that here would be scoring
+  without the key, and anything I say about the cases would leak into a
+  reviewer session that shares this context. If you want, I can fill in
+  results.csv once you have the key and the review outputs.
+
+✻ Sautéed for 35s · done Tuesday 8:11 PM
+
+❯ Create ops/evals/review-prompt.md: a code review prompt that lists defects    
+  with file:line and severity, or says ‘no defects’ if clean                    
+
+● Write(ops/evals/review-prompt.md)
+  ⎿  Wrote 73 lines to ops/evals/review-prompt.md
+      1 # Review prompt (v2)
+      2 
+      3 A drop-in replacement for the one-paragraph prompt in `README.md`
+        . Use it exactly as written below the line, with the case diff ap
+        pended. Record runs that use it as `prompt_version` = `v2` in `re
+        sults.csv`.
+      4 
+      5 Why the changes from v1: the output is in a fixed shape so each r
+        un can be scored without interpretation, severity is defined so i
+        t means the same thing across runs, and the prompt pushes hard ag
+     … +69 lines (~4 KB) (ctrl+o to expand)
+
+● I created ops/evals/review-prompt.md. It's not committed, and I haven't run it
+  on any case yet.
+
+  What's in it:
+  - A header saying to use it as a replacement for the README's prompt and to
+    record runs as prompt_version = v2.
+  - The prompt itself, with a placeholder at the end where you paste the case
+    diff:
+    - What counts as a defect: something with a concrete failure scenario ("with
+      this input or state, this happens"). Style, missing features, "consider
+      adding" suggestions and untouched code are excluded. That's to keep false
+      alarms down, which the README says is the number that decides whether
+      anyone keeps using the reviewer.
+    - How to work: read the whole diff first, think about failure cases, state
+      any assumption about code the diff doesn't show, and re-check each finding
+      before reporting it.
+    - Line numbers: file:line in the new version of the file, with an example of
+      counting from the hunk header, plus what to do when the defect comes from
+      a removed line.
+    - Severity: critical, high, medium or low, each defined by impact, and kept
+      separate from confidence (the results template has a confidence_reported
+      column).
+    - Output: a fixed shape. Either DEFECTS: N followed by numbered findings
+      (file:line | severity | confidence, what goes wrong, failure scenario,
+      fix), or exactly DEFECTS: 0 / No defects found.
+
+  Two things to watch:
+  - I deliberately didn't fit it to the ten cases. It names no case and lists
+    only general kinds of defect. Otherwise v2's scores would reflect what I
+    know about the cases rather than the prompt.
+  - The pressure against false alarms has a cost. It could make the reviewer
+    miss real defects it isn't sure about. Comparing v1 and v2 on catch rate,
+    not just false-alarm rate, will show whether that trade is worth it.
+
+✻ Crunched for 29s · done Tuesday 8:12 PM
+
+❯ Run run 1: for each case, use a fresh subagent that sees only the review      
+  prompt and the case’s code, NOT the expected answer. Then score against the   
+  expected answer and save a table to ops/evals/results/run-1.md with caught,   
+  missed and false-alarm counts and rates.                                      
+
+● The expected answers aren't in the repo, as we found earlier. I'll launch the
+  10 reviews now and sort out the scoring key while they run. First I'll load
+  the case diffs so each reviewer gets its diff inline, with no repo access
+  needed.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● I have all ten diffs. Launching ten fresh reviewers in parallel. Each gets
+  only the v2 prompt and its own diff, inline, and is told not to use any tools,
+  so it can't look at the repo.
+
+● 10 background agents launched (↓ to manage)
+   ├ Review eval case-01
+   ├ Review eval case-02
+   ├ Review eval case-03
+   ├ Review eval case-04
+   ├ Review eval case-05
+   ├ Review eval case-06
+   ├ Review eval case-07
+   ├ Review eval case-08
+   ├ Review eval case-09
+   └ Review eval case-10
+
+● All ten reviewers are running. While they work, there's a decision only you
+  can make: the answer key isn't in the repo, so I need to know what to score
+  against.
+
+● User answered Claude's questions:
+  ⎿  · ops/evals has no answer key; the README says it's in the facilitator's 
+     session runbook. The 10 reviews are running now. What should I score run 1 
+     against? → Save raw results only
+› Message from general-purpose
+  ```
+  DEFECTS: 0
+  No defects found.
+  ```
+
+● Agent "Review eval case-04" finished · 5s
+
+› Message from general-purpose
+  DEFECTS: 1
+
+  1. README.md:25 | low | confidence low
+     What goes wrong: The new README line says signing out and back in resets
+  the sample data. Nothing in this diff adds a reset, and the line just above
+  says the in-memory store is only recreated when the process starts. So signing
+  out most likely does not reset anything. (I'm assuming the existing sign-out
+  code only ends the session and leaves the repository alone; I can't see that
+  code.)
+     Failure scenario: A user changes or approves invoices, signs out and signs
+  back in to get clean data, as the README says. The changed invoices are still
+  there. They have to restart the process instead, and they may think the app
+  has a bug.
+     Fix: Remove the sentence, or change it to say that restarting the process
+  is the only way to reset the sample data.
+
+● Agent "Review eval case-09" finished · 9s
+
+› Message from general-purpose
+  DEFECTS: 0
+  No defects found.
+
+● Agent "Review eval case-06" finished · 12s
+
+› Message from general-purpose
+  DEFECTS: 3
+
+  1. backend/src/InvoiceApp.Api/Controllers/InvoicesController.cs:28 | critical
+  | confidence high
+     What goes wrong: The `customer` query parameter goes straight into the SQL
+  text through string interpolation, so this is SQL injection.
+     Failure scenario: `GET /api/invoices/search?customer=' OR 1=1; DROP TABLE
+  Invoices; --` turns into `... LIKE '%' OR 1=1; DROP TABLE Invoices; --%'`. Any
+  signed-in user could read every invoice or change and delete data, whatever
+  their role.
+     Fix: Use a parameterised query (`LIKE @customer` with the value `%` +
+  customer + `%` bound as a parameter), or filter through the repository instead
+  of raw SQL.
+
+  2. backend/src/InvoiceApp.Api/Controllers/InvoicesController.cs:32 | critical
+  | confidence high
+     What goes wrong: The optional `status` parameter is also put into the SQL
+  text without escaping, which is a second injection point.
+     Failure scenario: `GET /api/invoices/search?customer=a&status=x' UNION
+  SELECT * FROM Users --` adds attacker-controlled SQL and returns data from
+  other tables.
+     Fix: Bind `status` as a parameter, or parse it into the `InvoiceStatus`
+  enum first and reject values that do not match.
+
+  3. backend/src/InvoiceApp.Api/Controllers/InvoicesController.cs:35 | high |
+  confidence medium
+     What goes wrong: `_queries` is not declared or injected anywhere in this
+  diff. The project stores invoices in an in-memory repository, so there is no
+  `Invoices` SQL table for this query to run against.
+     Failure scenario: Assuming no `_queries` field exists outside the diff, the
+  controller does not compile and the build breaks. If some query runner does
+  exist, it has no `Invoices` table to read, so every search request fails at
+  runtime.
+     Fix: Do the search through `_repository` (for example a `Search(customer,
+  status)` method on the repository interface in Domain), with tests that use
+  `FakeInvoiceRepository`.
+
+● Agent "Review eval case-02" finished · 13s
+
+› Message from general-purpose
+  DEFECTS: 3
+
+  1. backend/src/InvoiceApp.Api/Controllers/InvoicesController.cs:44 | critical
+  | confidence high
+     What goes wrong: The new `Delete` endpoint has no `[RequireRole("Admin")]`
+  attribute, so sign-in is the only check. Any signed-in user can permanently
+  delete invoices. The project rule says destructive actions are Admin only, and
+  the neighbouring `Update` action carries the attribute.
+     Failure scenario: `demo.approver` (role Approver) sends `DELETE
+  /api/invoices/{id}` and gets 204. The invoice is removed, which is
+  unauthorised data loss.
+     Fix: Add `[RequireRole("Admin")]` to the `Delete` action.
+
+  2. backend/src/InvoiceApp.Api/Controllers/InvoicesController.cs:47 | medium |
+  confidence medium
+     What goes wrong: `_repository.Delete(id)` is called directly instead of
+  through `Handle(...)`, so the not-found case does not map to 404. I am
+  assuming the repository either throws or returns a bool for a missing id; the
+  diff does not show which.
+     Failure scenario: A client deletes an id that does not exist. If the
+  repository throws, the client gets an unhandled 500. If it returns false, the
+  result is ignored and the client still gets 204 and is told the delete worked.
+     Fix: Wrap the call in `Handle(...)`, the way the other actions do, so a
+  missing invoice returns 404.
+
+  3. backend/src/InvoiceApp.Api/Controllers/InvoicesController.cs:47 | medium |
+  confidence low
+     What goes wrong: The delete goes straight to the repository and skips the
+  domain layer (`ApprovalService`, which owns the lifecycle). Nothing checks the
+  invoice's state before it is removed. I am assuming the domain does not allow
+  deleting invoices once they are past Draft.
+     Failure scenario: An invoice that is PendingApproval or Approved is deleted
+  mid-workflow, and the record of the approval is lost.
+     Fix: Move the delete into a Domain service method that enforces the allowed
+  states, and call that method from the controller through `Handle(...)`.
+
+● Agent "Review eval case-05" finished · 13s
+
+› Message from general-purpose
+  DEFECTS: 2
+
+  1. backend/src/InvoiceApp.Api/InMemoryInvoiceRepository.cs:9 | critical |
+  confidence high
+     What goes wrong: The shared, thread-safe `ConcurrentDictionary` is replaced
+  with a plain `Dictionary`. This repository is used by concurrent web requests
+  (I am assuming it is registered as a singleton in `Program.cs`, which an
+  in-memory store needs in order to keep its data). `Dictionary` is not safe
+  when several threads write to it, or when one thread writes while another
+  reads.
+     Failure scenario: Two requests call `Add` or `Update` (line 27) at the same
+  moment, or one request lists invoices while another adds one. Concurrent
+  writes can corrupt the dictionary's internal buckets. After that, invoices can
+  be lost, lookups can return wrong results, or a read can loop forever and
+  hang the request thread. A listing that runs during a write can also throw
+  `InvalidOperationException: Collection was modified` and return a 500.
+     Fix: Restore `ConcurrentDictionary<string, Invoice>`, or guard every read
+  and write with a lock.
+
+  2. backend/src/InvoiceApp.Api/InMemoryInvoiceRepository.cs:19 | high |
+  confidence high
+     What goes wrong: The atomic `TryAdd` is replaced with a separate check
+  (`ContainsKey` on line 19) followed by a write (the indexer on line 24). The
+  indexer overwrites an existing entry, so the duplicate-ID guard is no longer
+  reliable.
+     Failure scenario: Two concurrent `Add` calls use the same invoice ID. Both
+  see `ContainsKey` return false, and both write on line 24. The second invoice
+  silently replaces the first. Neither caller gets the "already exists"
+  exception, and the first invoice is lost.
+     Fix: Use `ConcurrentDictionary.TryAdd` again, or do the check and the
+  insert inside one lock using `Dictionary.TryAdd`.
+
+● Agent "Review eval case-08" finished · 14s
+
+› Message from general-purpose
+  DEFECTS: 2
+
+  1. backend/src/InvoiceApp.Api/Controllers/ApiControllerBase.cs:37 | critical |
+  confidence high
+     What goes wrong: The new catch-all `catch (Exception)` turns every
+  unexpected failure into HTTP 200 with `{ status = "completed" }`. Failed
+  operations get reported as successes, and the exception is never logged or
+  passed on.
+     Failure scenario: An approver calls the approve endpoint and
+  `ApprovalService` or the repository throws an unexpected exception, such as a
+  `NullReferenceException` or `FormatException`, partway through. That could be
+  after one invoice field changed but before the save finished. The client gets
+  200 "completed" and the UI shows the invoice as approved, but it is still
+  pending or only half updated. No 500 is returned and nothing is logged, so the
+  corruption cannot be seen or traced. The same happens for a destructive Admin
+  action that never actually deleted anything.
+     Fix: Remove the catch-all so unexpected exceptions go to ASP.NET Core's
+  error handling, which logs them and returns 500. If a generic handler is
+  needed, log the exception and return `StatusCode(500, ...)`.
+
+  2. backend/src/InvoiceApp.Api/Controllers/ApiControllerBase.cs:37 | medium |
+  confidence medium
+     What goes wrong: On a successful call, `Handle` returns the action's
+  result, such as an invoice object. On this new path it returns 200 with a
+  different body, `{ status: "completed" }`. That breaks the contract for any
+  caller that relies on a 200 response having the normal payload shape.
+     Failure scenario: The web UI or an API client calls GET or approve on an
+  invoice and an unexpected exception is caught here. The client sees 200, reads
+  the body as an invoice, and gets undefined fields or crashes during
+  deserialisation. The real error never shows up.
+     Fix: Never return a success status from an exception path. Return a non-2xx
+  error response, or let the exception propagate.
+
+● Agent "Review eval case-10" finished · 14s
+
+› Message from general-purpose
+  DEFECTS: 3
+
+  1. backend/src/InvoiceApp.Api/Controllers/ApprovalsController.cs:36 | critical
+  | confidence medium
+     What goes wrong: The whole `CurrentUser` object is logged with structured
+  destructuring (`{@Session}`). This writes session and identity data, such as
+  claims, the auth cookie or ticket, and possibly a token, into the application
+  logs.
+     Failure scenario: An Approver approves any invoice. With Serilog or any
+  other destructuring sink, every public property of `CurrentUser` goes to the
+  log store. Anyone who can read the logs can then collect that session data and
+  may be able to replay or impersonate the session. (This assumes `CurrentUser`
+  carries more than a display name. Its type is not in the diff.)
+     Fix: Log only a non-sensitive identifier such as `CurrentUser.Name`, never
+  the session or user object.
+
+  2. backend/src/InvoiceApp.Api/Controllers/ApprovalsController.cs:36 | critical
+  | confidence medium
+     What goes wrong: The entire invoice is destructured into the log
+  (`{@Invoice}`). Customer and financial data (supplier or customer names,
+  amounts, and any bank or payment details) leaves the controlled data store and
+  is copied into logs that usually have wider access and longer retention.
+     Failure scenario: Each successful approval writes the full invoice record
+  to the logs, which leaks customer data to everyone who has log access and to
+  every downstream log sink.
+     Fix: Log only the invoice ID and the new status, for example `"Invoice
+  {InvoiceId} approved by {Approver}"`.
+
+  3. backend/src/InvoiceApp.Api/Controllers/ApprovalsController.cs:34 | medium |
+  confidence low
+     What goes wrong: The new code uses `_logger`, but the diff adds no
+  `ILogger<ApprovalsController>` field and no constructor injection for it.
+     Failure scenario: If the controller does not already declare and inject
+  `_logger` (outside the visible hunk), the project fails to compile and the API
+  cannot be built or deployed.
+     Fix: Inject `ILogger<ApprovalsController>` through the constructor and
+  assign it to a readonly `_logger` field, or confirm one already exists.
+
+● Agent "Review eval case-07" finished · 14s
+
+› Message from general-purpose
+  DEFECTS: 3
+
+  1. backend/src/InvoiceApp.Api/Controllers/ApprovalsController.cs:51 | high |
+  confidence medium
+     What goes wrong: The bulk loop calls `_approvals.Approve` directly instead
+  of going through `Handle(...)`. Service errors therefore never become
+  404/409/400. They escape as unhandled exceptions and the client gets a 500.
+     Failure scenario: A POST with `{"ids":["unknown-id"]}`, or with the id of
+  an invoice that is already Approved or Rejected, makes `Approve` throw its
+  not-found or invalid-state error. The single-approve endpoint would return 404
+  or 409 for that, but this endpoint returns 500. (Assumption: `Approve` throws
+  for these cases, as the `Handle` convention suggests.)
+     Fix: Wrap the operation in `Handle(...)`, like the other endpoints do, so
+  service errors map to the proper status codes.
+
+  2. backend/src/InvoiceApp.Api/Controllers/ApprovalsController.cs:49 | high |
+  confidence medium
+     What goes wrong: Approvals are applied one at a time and are not atomic. If
+  one id fails partway through, the earlier invoices stay approved, but the
+  request returns an error with no list of what succeeded.
+     Failure scenario: The request is `{"ids":["A","B","A"]}` (a duplicate), or
+  `["A","bad-id","C"]`. A is approved and saved, then the next `Approve` throws.
+  The caller gets an error response even though A is now Approved and C was
+  skipped. A retry then fails on A because it is already approved, so the batch
+  can never complete cleanly.
+     Fix: Validate all ids first (they must exist, be distinct and be
+  PendingApproval) in a Domain bulk-approve method before changing any invoice.
+  Otherwise, return a result for each id saying whether it succeeded or failed.
+
+  3. backend/src/InvoiceApp.Api/Controllers/ApprovalsController.cs:49 | medium |
+  confidence high
+     What goes wrong: `Ids` is declared nullable (`List<string>?`), but
+  `request.Ids` is used in `foreach` without a null check. A missing or null
+  `ids` field, or an empty body that leaves `request` null, throws
+  NullReferenceException.
+     Failure scenario: A POST to `api/approvals/bulk-approve` with `{}` or
+  `{"ids":null}` makes `foreach` throw a NullReferenceException, and the client
+  gets a 500 instead of a 400.
+     Fix: Return 400 (BadRequest) when `request` or `request.Ids` is null, or
+  make `Ids` non-nullable so model validation rejects the request.
+
+● Agent "Review eval case-01" finished · 15s
+
+› Message from general-purpose
+  DEFECTS: 1
+
+  1. backend/src/InvoiceApp.Domain/DiscountCalculator.cs:16 | high | confidence
+  medium
+     What goes wrong: The change replaces the old single
+  round-half-away-from-zero on the final amount with truncation applied twice.
+  On decimals, `MidpointRounding.ToZero` truncates every value, not just
+  midpoints. So the discount is cut down to whole cents before it is subtracted.
+  The discount is under-applied and the customer is overcharged by up to 0.01
+  on any discount that is not a whole number of cents. The old rounding rule is
+  also silently broken for existing callers and tests.
+     Failure scenario: Apply(20.00m, 16.685m) gives a discount of 3.337. The old
+  code returned round(16.663) = 16.66. The new code truncates the discount to
+  3.33 and returns 16.67, one cent more than before. Inputs with more than 2
+  decimal places are also truncated instead of rounded: Apply(10.009m, 0m) used
+  to return 10.01 and now returns 10.00. For negative amounts such as credit
+  notes, the outer ToZero rounds toward zero, so those also differ from the
+  AwayFromZero results.
+     Fix: Restore `Math.Round(amount - discount, 2,
+  MidpointRounding.AwayFromZero)`. If the discount must be rounded on its own,
+  round it with AwayFromZero, and update the tests to match whichever rule is
+  intended.
+
+● Agent "Review eval case-03" finished · 17s
+
+● All ten reviewers have reported back. As you chose, I'll save the raw results
+  with the verdicts left blank.
+
+● Write(ops/evals/results/run-1.md)
+  ⎿  Wrote 227 lines to ops/evals/results/run-1.md
+       1 # Review eval: run 1 (raw, not yet scored)
+       2 
+       3 **Status: NOT SCORED.** The answer key is not in this repository
+          (`ops/evals/README.md:4-5`, `ops/README.md:27-30`); it is in th
+         e facilitator's session runbook. This file records what each rev
+         iewer reported. The verdict column and the counts and rates belo
+         w stay blank until someone fills them in from the key.
+       4 
+       5 ## Run setup
+       6 
+     … +221 lines (ctrl+o to expand)
+
+● Update(ops/evals/results/run-1.md)
+  ⎿  Added 1 line, removed 1 line
+      42  | Cases where the reviewer reported at least one defect | 8 of 
+          10 (01, 02, 03, 05, 07, 08, 09, 10) |
+      43  | Cases where the reviewer said "No defects found." | 2 of 10 (
+          04, 06) |
+      44  | Total findings | 18 |
+      45 -| Findings by severity | critical 7 · high 6 · medium 4 · low 1
+         - |                                                             
+      45 +| Findings by severity | critical 7 · high 5 · medium 5 · low 1
+         + |                                                             
+      46  | Findings by confidence | high 7 · medium 8 · low 3 |
+      47  | Reviews that followed the required output format | 10 of 10 |
+      48  
+
+● I ran the 10 reviews and saved the raw results to ops/evals/results/run-1.md,
+  unscored as you chose. It isn't committed. The caught, missed and false-alarm
+  counts and rates can't be calculated yet, because they need the facilitator's
+  answer key, which isn't in the repo.
+
+  How the run was set up:
+  - Each case got a fresh subagent that received only the v2 prompt
+    (review-prompt.md) and its own diff, inline.
+  - Each was told not to use any tools, and each made exactly one tool call:
+    handing back its result. None of them could have seen the repo, the README,
+    the other cases or any answer.
+  - I didn't pass a model to the subagents, so they ran on the session's
+    default. That's noted in the file.
+
+  What the reviewers reported:
+  - Defects reported in 8 of 10 cases: 01, 02, 03, 05, 07, 08, 09 and 10.
+  - "No defects found" in 2: case-04 and case-06.
+  - 18 findings in total: 7 critical, 5 high, 5 medium and 1 low.
+  - All 10 replies followed the required format, which makes scoring mechanical.
+
+  What's in run-1.md:
+  - The run setup.
+  - One row per case: each finding's file:line, severity, confidence and a
+    one-line summary, with an empty Verdict column.
+  - The facts above as a separate table, which doesn't depend on the key.
+  - A blank score table with the formulas, and the scoring conventions to agree
+    first.
+  - Every reviewer's full output, in collapsible sections.
+
+  To finish scoring, get the key from the facilitator, fill in each Verdict
+  (caught, missed, false alarm or correct pass), then complete the counts and
+  rates. If you paste the key here, I can do it.
+
+  Once the key is in, note that several reviews list two or three findings. The
+  README's strict rule decides whether those extra findings count against the
+  prompt as false claims.
+
+  The README also asks for three runs before treating these as rates. Runs 2 and
+  3 would repeat the same setup in fresh sessions.
+
+✻ Crunched for 3m 27s · done Tuesday 8:16 PM
+
+❯ Run run 2: for each case, use a fresh subagent that sees only the review      
+  prompt and the case’s code, NOT the expected answer. Then score against the   
+  expected answer and save a table to ops/evals/results/run-1.md with caught,   
+  missed and false-alarm counts and rates.                                      
+
+● I'll save this to run-2.md, not run-1.md: writing to run-1.md would overwrite
+  run 1's results, and the file name looks like a slip. There's still no answer
+  key, so as with run 1 the results stay unscored. Launching ten fresh reviewers
+  with the same setup as run 1.
+
+● 10 background agents launched (↓ to manage)
+   ├ Run 2 review case-01
+   ├ Run 2 review case-02
+   ├ Run 2 review case-03
+   ├ Run 2 review case-04
+   ├ Run 2 review case-05
+   ├ Run 2 review case-06
+   ├ Run 2 review case-07
+   ├ Run 2 review case-08
+   ├ Run 2 review case-09
+   └ Run 2 review case-10
+
+● I've started the ten run-2 reviewers in parallel. Each is a fresh subagent
+  with only the v2 prompt and its own diff, the same setup as run 1. I'll write
+  the results to ops/evals/results/run-2.md when they all finish.
+
+  There's still no answer key, so this run will also be saved unscored. I'll
+  mark where run 2's results differ from run 1's, which shows how consistent the
+  reviewer is even before scoring.
+
+✻ Baked for 1m 58s · done Tuesday 8:19 PM
+
+› Message from general-purpose
+  ```
+  DEFECTS: 0
+  No defects found.
+  ```
+
+● Run 2's case-04 reviewer reported no defects, the same as in run 1. The other
+  nine reviewers are still running.
+
+✻ Cogitated for 2s · done Tuesday 8:19 PM
+
+● Agent "Run 2 review case-04" finished · 5s
+
+› Message from general-purpose
+  DEFECTS: 1
+
+  1. backend/src/InvoiceApp.Api/Controllers/ApiControllerBase.cs:35 | critical |
+  confidence high
+     What goes wrong: The new catch-all `catch (Exception)` turns every
+  unexpected failure into HTTP 200 `{ status = "completed" }`. It also throws
+  the exception away without logging or rethrowing it, so callers and operators
+  are told the operation worked when it did not.
+     Failure scenario: An approve, reject or delete call hits an unexpected
+  exception, such as a NullReferenceException, a repository fault, or a throw
+  after part of the state was already changed. The client gets 200 "completed"
+  and the UI shows the invoice as approved or deleted, but nothing was saved, or
+  only half of it was. Nothing is logged and no 500 is sent, so the failure
+  goes unnoticed and nobody retries. Any caller expecting `Handle` to return the
+  action's result also gets a different response body.
+     Fix: Remove the catch-all so unexpected exceptions reach the framework's
+  500 handling, or log the exception and return a 500 problem response rather
+  than `Ok`.
+
+● The case-10 reviewer has reported: one critical finding, the catch-all that
+  turns failures into 200 "completed". In run 1 the same reviewer cited it at
+  line 37 and added a second finding. Eight reviewers are still running.
+
+✻ Cogitated for 3s · done Tuesday 8:19 PM
+
+● Agent "Run 2 review case-10" finished · 9s
+● Agent "Run 2 review case-09" finished · 10s
+
+● Agent "Run 2 review case-05" finished · 10s
+
+● Agent "Run 2 review case-07" finished · 13s
+
+› Message from general-purpose
+  DEFECTS: 1
+
+  1. README.md:25 | low | confidence medium
+     What goes wrong: The new README line says that signing out and signing back
+  in resets the sample data. In an app that keeps its data in memory, the
+  repository is normally a singleton registered once at startup, and signing out
+  only clears the auth session. The repository is never reseeded, so the
+  documented reset does not happen.
+     Failure scenario: A user creates or approves invoices, signs out, then
+  signs in as demo.approver expecting fresh sample data. Their earlier changes
+  are still there, which contradicts the README. This assumes sign-out does not
+  reseed the in-memory repository; that code is not in the diff.
+     Fix: Remove the sentence, or change it to say that only restarting the
+  process resets the data (or add a real reset endpoint and document that
+  instead).
+
+› Message from general-purpose
+  DEFECTS: 2
+
+  1. backend/src/InvoiceApp.Api/Controllers/InvoicesController.cs:44 | critical
+  | confidence high
+     What goes wrong: The new `Delete` endpoint has no `[RequireRole("Admin")]`
+  attribute, so any signed-in user can delete invoices. The project rules say
+  destructive actions are Admin only, and the `Update` action right below it
+  does carry this attribute.
+     Failure scenario: A user signed in as `demo.approver` (role Approver) sends
+  `DELETE /api/invoices/{id}`. The invoice is deleted and the server returns
+  204, even though only Admins should be able to do this.
+     Fix: Add `[RequireRole("Admin")]` to the `Delete` action.
+
+  2. backend/src/InvoiceApp.Api/Controllers/InvoicesController.cs:47 | medium |
+  confidence medium
+     What goes wrong: The action calls `_repository.Delete(id)` directly instead
+  of going through `Handle(...)`, which skips the error mapping the other
+  actions use. It also skips any lifecycle rule in the Domain layer.
+  (Assumption: I can't see the repository or `ApprovalService`, so I am guessing
+  at how they behave.)
+     Failure scenario: Someone sends `DELETE` with an id that doesn't exist. If
+  the repository throws a not-found error, the caller gets an unhandled 500
+  instead of 404. If the repository silently does nothing, the caller gets 204
+  and the log line says the invoice was deleted when it wasn't. Either way, an
+  Approved or PendingApproval invoice can be deleted with no Domain check.
+     Fix: Move the delete into a Domain service method that checks the invoice
+  exists and is in a deletable state, and call it through `Handle(...)` so
+  missing invoices return 404 and conflicts return 409.
+
+› Message from general-purpose
+  DEFECTS: 2
+
+  1. backend/src/InvoiceApp.Api/Controllers/ApprovalsController.cs:36 | critical
+  | confidence medium
+     What goes wrong: The `{@Session}` placeholder with the `@` destructuring
+  operator serialises the whole `CurrentUser` object into the log at Information
+  level. I'm assuming `CurrentUser` is the signed-in user's session or
+  principal object. If so, it most likely holds a session token, an auth cookie
+  or ticket value, claims, or other credentials, and every one of them gets
+  written to the logs.
+     Failure scenario: An Approver approves any invoice, and the log sink
+  (console, file or an aggregator) receives the serialised session object,
+  including its token or claims. Anyone who can read the logs can then copy that
+  value and act as the approver.
+     Fix: Log only safe identifiers, such as `CurrentUser.Name` and the invoice
+  id, and never destructure the session or user object.
+
+  2. backend/src/InvoiceApp.Api/Controllers/ApprovalsController.cs:35 | medium |
+  confidence medium
+     What goes wrong: `{@Invoice}` destructures the whole invoice domain object
+  into the log on every approval. Any customer or financial data on the invoice
+  (supplier details, amounts, bank or contact fields) ends up in the logs. The
+  project rules forbid exposing customer data.
+     Failure scenario: Approving an invoice whose supplier record holds contact
+  or payment details writes all of those fields in plain text to the log at
+  Information level, where they are kept and can be seen beyond the app's own
+  access controls.
+     Fix: Log the invoice id and the new status only, not the whole object.
+
+› Message from general-purpose
+  DEFECTS: 2
+
+  1. backend/src/InvoiceApp.Api/InMemoryInvoiceRepository.cs:9 | high |
+  confidence medium
+     What goes wrong: The thread-safe `ConcurrentDictionary` is replaced with a
+  plain `Dictionary`, which is not safe for concurrent writes, or for reads that
+  run alongside a write. I am assuming the repository is registered as a
+  singleton in `Program.cs`, as in-memory repositories usually must be to keep
+  their data, so every request shares this one instance.
+     Failure scenario: Two users create or approve invoices at the same moment.
+  `Add` or `Update` runs on two request threads at once, or a `GetById` or list
+  read runs during a write. The dictionary's internal state can be corrupted.
+  Possible results are `InvalidOperationException` ("Operations that change
+  non-concurrent collections must have exclusive access"), lost entries, or a
+  read that spins forever and pins a CPU thread.
+     Fix: Go back to `ConcurrentDictionary<string, Invoice>`, or wrap every
+  access to the dictionary in a lock.
+
+  2. backend/src/InvoiceApp.Api/InMemoryInvoiceRepository.cs:24 | medium |
+  confidence medium
+     What goes wrong: `Add` now checks for an existing key (line 19) and writes
+  (line 24) as two separate steps instead of one atomic `TryAdd`. Two concurrent
+  adds with the same Id can both pass the check, so the duplicate guard no
+  longer holds.
+     Failure scenario: Two requests add an invoice with the same Id at the same
+  time (for example a double-submitted create). Both see `ContainsKey` return
+  false. Both write, and the second silently overwrites the first instead of
+  throwing "already exists". The first invoice is lost without any error.
+     Fix: Use `ConcurrentDictionary.TryAdd`, or do the check and the write under
+  one lock.
+
+● Six of ten are back: cases 04, 05, 07, 08, 09 and 10. Still waiting on 01, 02,
+  03 and 06.
+
+✻ Sautéed for 2s · done Tuesday 8:19 PM
+
+● Agent "Run 2 review case-08" finished · 13s
+
+● Agent "Run 2 review case-02" finished · 14s
+
+● Agent "Run 2 review case-03" finished · 15s
+
+› Message from general-purpose
+  DEFECTS: 3
+
+  1. backend/src/InvoiceApp.Api/Controllers/InvoicesController.cs:28 | critical
+  | confidence high
+     What goes wrong: The `customer` query parameter goes straight into the SQL
+  text through string interpolation, so this is SQL injection.
+     Failure scenario: A signed-in user calls `GET
+  /api/invoices/search?customer=' OR 1=1 --`. The query becomes `... LIKE '%' OR
+  1=1 --%'` and returns every invoice. A payload like `'; DROP TABLE Invoices;
+  --` or a `UNION SELECT` against other tables could delete data or read it, if
+  `_queries.Run` allows more than one statement.
+     Fix: Use a parameterized query (`LIKE @customer`, with the value `"%" +
+  customer + "%"` bound as a parameter, escaping `%` and `_` if they should
+  match literally), or filter through the repository instead of raw SQL.
+
+  2. backend/src/InvoiceApp.Api/Controllers/InvoicesController.cs:32 | critical
+  | confidence high
+     What goes wrong: The optional `status` query parameter is also interpolated
+  into the SQL, so it is a second injection point.
+     Failure scenario: `GET /api/invoices/search?customer=x&status=' OR '1'='1`
+  gives `... AND Status = '' OR '1'='1'`, which skips both filters and returns
+  all rows. Other payloads can run any SQL.
+     Fix: Bind `status` as a parameter, or better, parse it to the invoice
+  status enum (Draft, PendingApproval, Approved, Rejected), return 400 if it is
+  not valid, and then bind it.
+
+  3. backend/src/InvoiceApp.Api/Controllers/InvoicesController.cs:35 | high |
+  confidence low
+     What goes wrong: The new code calls `_queries.Run(sql)`, but the diff does
+  not declare, inject or register any `_queries` field. I am assuming the
+  controller only has `_repository`, as the context lines suggest.
+     Failure scenario: If `_queries` is not declared somewhere outside the diff,
+  the project fails to compile. If it is declared but has no implementation
+  registered in `Program.cs`, the controller cannot be created and every
+  invoices endpoint fails, not just search.
+     Fix: Declare the query dependency, inject it through the constructor and
+  register it in `Program.cs`, or do the search through the existing repository
+  instead.
+
+› Message from general-purpose
+  DEFECTS: 1
+
+  1. backend/src/InvoiceApp.Domain/DiscountCalculator.cs:16 | high | confidence
+  medium
+     What goes wrong: The change truncates the discount
+  (`MidpointRounding.ToZero`) before subtracting it, where the old code rounded
+  the final discounted amount half away from zero. Cutting fractions of a cent
+  off the discount makes the discounted total higher, by up to 0.01 per call.
+  Because the rounding is now toward zero, it is also not symmetric for negative
+  amounts such as credit notes.
+     Failure scenario: `Apply(19.99m, 15m)` gives a discount of 2.9985. The old
+  code returned round(16.9915) = 16.99. The new code truncates the discount to
+  2.99 and returns 19.99 - 2.99 = 17.00, so the customer is overcharged by 0.01.
+  This happens on any amount and percent pair where the exact discount has a
+  fraction of a cent. Existing tests or stored totals that assume the old
+  rounding will no longer match. (Assumption: the diff does not say whether this
+  change in rounding was intended. If it was, it still breaks what existing
+  callers expect.)
+     Fix: Compute `amount - discount` at full precision and round once with
+  `MidpointRounding.AwayFromZero`, as before. If the rounding rule really needs
+  to change, make it an explicit rule and cover it with tests.
+
+● Eight of ten are back. Still waiting on case-01 and case-06.
+
+✻ Baked for 1s · done Tuesday 8:19 PM
+
+› Message from general-purpose
+  DEFECTS: 3
+
+  1. backend/src/InvoiceApp.Api/Controllers/ApprovalsController.cs:51 | high |
+  confidence medium
+     What goes wrong: The loop calls `_approvals.Approve` directly instead of
+  going through `Handle(...)`. Each approval is saved as it happens, so the
+  batch is not atomic, and a service error in the middle comes back as an
+  unhandled exception instead of the 404/409/400 that `Handle` would give.
+     Failure scenario: Ids `["INV-1", "INV-2", "INV-404"]`, or a list with the
+  same id twice or an invoice that is already Approved. INV-1 and INV-2 are
+  approved and saved. Then `Approve` throws for the bad id, the caller gets a
+  500 with no list of what succeeded, and two invoices are approved that the
+  client thinks failed. If they retry, the already-approved ids throw too. This
+  assumes `Approve` throws on not-found or invalid-state errors, which is what
+  `Handle` exists to map.
+     Fix: Check every id before approving any of them (or approve in a single
+  domain-level batch operation), wrap the call in `Handle(...)`, and return the
+  result for each id.
+
+  2. backend/src/InvoiceApp.Api/Controllers/ApprovalsController.cs:49 | medium |
+  confidence high
+     What goes wrong: `Ids` is declared nullable (`List<string>?`), but the loop
+  reads it without a null check.
+     Failure scenario: A request body of `{}` or `{"ids": null}` sets `Ids` to
+  null, so `foreach` throws a NullReferenceException and the client gets a 500
+  instead of a 400.
+     Fix: Return `BadRequest` when `request.Ids` is null or empty, or make the
+  property non-nullable and required.
+
+  3. backend/src/InvoiceApp.Api/Controllers/ApprovalsController.cs:41 | low |
+  confidence medium
+     What goes wrong: There is no limit on how many ids one request can contain,
+  so one call can run an unbounded number of approvals.
+     Failure scenario: An Approver posts a request with tens of thousands of
+  ids. The request ties up the server for a long time and approves invoices in
+  bulk with no limit, and combined with defect 1 it can leave a large set of
+  invoices partly approved.
+     Fix: Reject requests whose `Ids` count is above a small fixed maximum.
+
+› Message from general-purpose
+  DEFECTS: 0
+  No defects found.
+
+● All ten run-2 reviews are back. I'll write them up now, with a comparison
+  against run 1.
+
+● Write(ops/evals/results/run-2.md)
+  ⎿  Wrote 228 lines to ops/evals/results/run-2.md
+       1 # Review eval: run 2 (raw, not yet scored)
+       2 
+       3 **Status: NOT SCORED.** The answer key is not in this repository
+          (`ops/evals/README.md:4-5`, `ops/README.md:27-30`); it is in th
+         e facilitator's session runbook. This file records what each rev
+         iewer reported. The verdict column and the counts and rates belo
+         w stay blank until someone fills them in from the key.
+       4 
+       5 ## Run setup
+       6 
+     … +222 lines (ctrl+o to expand)
+
+● Agent "Run 2 review case-01" finished · 16s
+
+● Agent "Run 2 review case-06" finished · 15s
+
+● Run 2 is done. I saved it to ops/evals/results/run-2.md, not run-1.md as your
+  message said, because that would have overwritten run 1. It isn't committed.
+
+  It still has no caught, missed or false-alarm counts. The answer key still
+  isn't in the repo, so as you chose for run 1, run 2 is saved unscored, with an
+  empty Verdict column and a blank score table.
+
+  How it was run: the same way as run 1. Each case got a fresh subagent with
+  only the v2 prompt and its own diff, inline, and the instruction not to use
+  tools. Each made only its one hand-back call. None saw the repo, the answer
+  key or run 1's output.
+
+  What the reviewers reported:
+  - Whether each case has a defect: identical to run 1. Defects were reported in
+    8 cases (01, 02, 03, 05, 07, 08, 09, 10), and "No defects found" in 2
+    (04, 06).
+  - 15 findings, down from 18: 5 critical, 4 high, 4 medium and 2 low.
+  - All 10 replies followed the required format.
+
+  How it compares with run 1 (a table in the file covers each case):
+  - Same verdict on all 10 cases, and the same main finding in every flagged 
+    case. Once the key arrives, the verdicts will probably match between runs.
+  - The extra findings change from run to run. Some were dropped: the _logger
+    compile concern in case-07 and the response-shape point in case-10. Some
+    were merged, in cases 01 and 05. One is new: an unbounded id list in
+    case-01.
+  - Severity for the same defect moved by one level. In case-07 the invoice
+    logging went from critical to medium. In case-08 both findings dropped a
+    level. Severity isn't reliable for comparing prompts until all three runs
+    are in.
+  - Line numbers for the same defect differ by one or two lines. For example,
+    case-10 cited line 35 instead of 37. The strict rule is about naming the
+    right defect, so both should count.
+
+  If you paste the facilitator's key, I can fill in the verdicts and rates in
+  both run-1.md and run-2.md. Run 3 would complete the three runs the README
+  asks for.
+
+✻ Churned for 3m 18s · done Tuesday 8:20 PM
+
+※ recap: We're measuring how well the v2 review prompt finds defects in the ten eval cases. Runs 1 and 2 are saved unscored, because the answer key isn't in the repo, so next you need to get the facilitator's key or start run 3.
+
+❯ Run run 3: for each case, use a fresh subagent that sees only the review      
+  prompt and the case’s code, NOT the expected answer. Then score against the   
+  expected answer and save a table to ops/evals/results/run-1.md with caught,   
+  missed and false-alarm counts and rates                                       
+
+● I'll save this to run-3.md so run 1 isn't overwritten, and as before there's
+  no answer key, so it stays unscored. Launching the ten fresh reviewers with
+  the same setup.
+
+● 10 background agents launched (↓ to manage)
+   ├ Run 3 review case-01
+   ├ Run 3 review case-02
+   ├ Run 3 review case-03
+   ├ Run 3 review case-04
+   ├ Run 3 review case-05
+   ├ Run 3 review case-06
+   ├ Run 3 review case-07
+   ├ Run 3 review case-08
+   ├ Run 3 review case-09
+   └ Run 3 review case-10
+
+● I've started the ten run-3 reviewers in parallel, each a fresh subagent with
+  only the v2 prompt and its own diff. I'll write ops/evals/results/run-3.md
+  once all ten report, with a comparison across all three runs.
+
+✻ Worked for 1m 58s · done Tuesday 8:26 PM
+
+› Message from general-purpose
+  DEFECTS: 0
+  No defects found.
+
+● The case-04 reviewer reported no defects, the same as in runs 1 and 2. Nine
+  reviewers are still running.
+
+✻ Worked for 2s · done Tuesday 8:26 PM
+
+● Agent "Run 3 review case-04" finished · 5s
+
+› Message from general-purpose
+  ```
+  DEFECTS: 0
+  No defects found.
+  ```
+
+● The case-06 reviewer reported no defects, the same as in runs 1 and 2. Eight
+  reviewers are still running.
+
+✻ Cooked for 1s · done Tuesday 8:26 PM
+
+● Agent "Run 3 review case-06" finished · 8s
+
+● Agent "Run 3 review case-09" finished · 9s
+› Message from general-purpose
+  DEFECTS: 1
+
+  1. README.md:25 | low | confidence medium
+     What goes wrong: The README says signing out and back in resets the sample
+  data. The diff does not change any code to do that, and an in-memory
+  repository registered for the life of the process is not tied to a user's
+  sign-in.
+     Failure scenario: A user creates or approves invoices, signs out and signs
+  back in expecting fresh sample data. The old invoices and their states are
+  still there, because only restarting the process clears the in-memory store,
+  as line 22-23 of the same README says. This assumes the repository is a
+  singleton that sign-out does not touch, which is the usual setup but cannot be
+  seen in the diff.
+     Fix: Remove the sign-out reset sentence, or say that restarting the app is
+  the only way to reset the data.
+
+● Cases 04, 06 and 09 are back, all matching runs 1 and 2. Seven reviewers are
+  still running.
+
+✻ Crunched for 1s · done Tuesday 8:26 PM
+
+› Message from general-purpose
+  DEFECTS: 1
+
+  1. backend/src/InvoiceApp.Api/Controllers/ApiControllerBase.cs:37 | critical |
+  confidence high
+     What goes wrong: The new `catch (Exception)` catches every unexpected
+  failure and returns HTTP 200 with `{ status = "completed" }`. The exception is
+  also discarded without being logged. Callers are told the operation succeeded
+  when it actually failed.
+     Failure scenario: An approver calls the approve endpoint, and the action
+  throws an unexpected exception partway through, for example a
+  `NullReferenceException` from a missing field or a repository/storage error.
+  The client gets 200 "completed", so the UI shows the invoice as approved or
+  saved. The change was never stored, or was only partly applied. The user and
+  any downstream process act on a false success, the data is silently lost or
+  inconsistent, and there is no log or 500 that would let anyone notice. The 200
+  body also lacks the action's real return value, so callers that read the
+  response get the wrong shape.
+     Fix: Remove the catch-all so unexpected exceptions reach the framework's
+  500 handling. If a catch-all is needed, log the exception and return a 500
+  problem response, never `Ok`.
+
+› Message from general-purpose
+  DEFECTS: 2
+
+  1. backend/src/InvoiceApp.Api/InMemoryInvoiceRepository.cs:9 | high |
+  confidence medium
+     What goes wrong: The thread-safe `ConcurrentDictionary` is swapped for a
+  plain `Dictionary`, but this repository is shared across concurrent web
+  requests. `Dictionary` is not safe when one thread writes while others read or
+  write.
+     Failure scenario: I'm assuming the repository is registered as a singleton
+  in `Program.cs`, which is not shown in the diff. Two users create or approve
+  invoices at the same moment, so `Add`/`Update` writes overlap with each other
+  or with `GetById` and any listing. The dictionary's internal state can then be
+  corrupted, which shows up as lost entries, `InvalidOperationException`
+  ("Collection was modified") while a listing enumerates,
+  `IndexOutOfRangeException`, or a thread stuck in an endless loop.
+     Fix: Go back to `ConcurrentDictionary<string, Invoice>`, or wrap every
+  access, including enumeration, in a lock.
+
+  2. backend/src/InvoiceApp.Api/InMemoryInvoiceRepository.cs:24 | medium |
+  confidence medium
+     What goes wrong: The duplicate check is no longer atomic. `ContainsKey`
+  (line 19) and the indexer assignment (line 24) are two separate steps, and the
+  indexer silently overwrites an existing key. Before this change, `TryAdd` did
+  both in one step.
+     Failure scenario: Two concurrent `Add` calls use the same invoice Id, for
+  example a client retry or a double-submit. Both pass `ContainsKey`, both
+  assign, and the second invoice silently replaces the first. That is lost data,
+  and neither caller gets the "already exists" error.
+     Fix: Use `ConcurrentDictionary.TryAdd` again, or do the check and the
+  insert under one lock using `Dictionary.TryAdd`.
+
+› Message from general-purpose
+  DEFECTS: 2
+
+  1. backend/src/InvoiceApp.Api/Controllers/ApprovalsController.cs:35 | critical
+  | confidence high
+     What goes wrong: The `{@Invoice}` and `{@Session}` placeholders destructure
+  the whole invoice object and the whole `CurrentUser` object into the
+  application log. That writes customer and invoice data, plus the signed-in
+  user's session details, to plain-text logs. The session details may include
+  claims, a session id or a token.
+     Failure scenario: An Approver approves any invoice. The log sink receives
+  the full invoice (customer name, amounts, any bank or payment fields) and the
+  serialised current-user object. Anyone who can read the logs, or any
+  downstream log aggregator, can then see customer data and could reuse session
+  identifiers to impersonate the approver.
+     Fix: Log only non-sensitive scalar fields, such as `invoice.Id`, the new
+  status and `CurrentUser.Name`, and never destructure the invoice or the
+  session object.
+
+  2. backend/src/InvoiceApp.Api/Controllers/ApprovalsController.cs:34 | low |
+  confidence low
+     What goes wrong: The code uses `_logger`, but the diff shows no field
+  declaration or constructor injection for it. The hunk header claims 6 added
+  lines and only 4 are shown, so the declaration may be in the missing lines. I
+  am assuming it is not in the existing code.
+     Failure scenario: If `ApprovalsController` has no
+  `ILogger<ApprovalsController> _logger` injected, the project fails to compile
+  and the approve endpoint cannot ship.
+     Fix: Inject `ILogger<ApprovalsController>` through the constructor and
+  assign it to a readonly `_logger` field, or confirm one already exists.
+
+› Message from general-purpose
+  DEFECTS: 3
+
+  1. backend/src/InvoiceApp.Api/Controllers/InvoicesController.cs:44 | critical
+  | confidence high
+     What goes wrong: The new `Delete` endpoint has no `[RequireRole("Admin")]`
+  attribute. The project convention says destructive actions are Admin only, and
+  the neighbouring `Update` action has that attribute.
+     Failure scenario: A user signed in as `demo.approver` (role Approver) sends
+  `DELETE /api/invoices/{id}`. The request passes only the global sign-in
+  check, the invoice is permanently removed, and the response is 204.
+     Fix: Add `[RequireRole("Admin")]` to the `Delete` action.
+
+  2. backend/src/InvoiceApp.Api/Controllers/InvoicesController.cs:47 | medium |
+  confidence medium
+     What goes wrong: The call is not wrapped in `Handle(...)`, so repository or
+  service errors are not mapped to 404, 409 or 400. The log line and the 204
+  response run whatever the outcome. (This assumes `Delete` either throws or
+  quietly does nothing for an unknown id; the repository code is not in the
+  diff.)
+     Failure scenario: A client sends `DELETE /api/invoices/does-not-exist`.
+  Either the repository throws and the client gets an unhandled 500 instead of
+  404, or it does nothing and the client gets 204 plus an audit log entry saying
+  "Invoice does-not-exist deleted", which is false.
+     Fix: Use `return Handle(() => _repository.Delete(id));` (or an equivalent
+  that returns 404 when the id is missing) and write the log entry only after
+  the delete succeeds.
+
+  3. backend/src/InvoiceApp.Api/Controllers/InvoicesController.cs:47 | medium |
+  confidence medium
+     What goes wrong: The endpoint calls the repository directly and skips
+  `ApprovalService`, which owns the invoice lifecycle. Invoices in any state can
+  be deleted with no domain rule checked.
+     Failure scenario: An invoice that is `Approved` (or `PendingApproval`) gets
+  a DELETE request. It is removed with no 409, so the record of an approval
+  decision disappears with no lifecycle check.
+     Fix: Put the deletion rule (which states allow deletion) in the Domain
+  service, call it through `Handle(...)`, and add tests that use
+  `FakeInvoiceRepository`.
+
+● Seven of ten are back: cases 04, 05, 06, 07, 08, 09 and 10. Still waiting on
+  01, 02 and 03.
+
+✻ Brewed for 2s · done Tuesday 8:26 PM
+
+● Agent "Run 3 review case-10" finished · 10s
+
+● Agent "Run 3 review case-08" finished · 11s
+
+● Agent "Run 3 review case-07" finished · 12s
+
+● Agent "Run 3 review case-05" finished · 12s
+
+● Agent "Run 3 review case-02" finished · 13s
+
+› Message from general-purpose
+  DEFECTS: 3
+
+  1. backend/src/InvoiceApp.Api/Controllers/InvoicesController.cs:28 | critical
+  | confidence high
+     What goes wrong: The `customer` query parameter goes straight into the SQL
+  text through string interpolation, which allows SQL injection.
+     Failure scenario: A signed-in user calls `GET
+  /api/invoices/search?customer=%' OR '1'='1' --`. The query becomes `... LIKE
+  '%%' OR '1'='1' --%'` and returns every invoice. A payload such as `x'; DELETE
+  FROM Invoices; --` could also destroy data if the query runner allows
+  multiple statements.
+     Fix: Use a parameterised query (for example `LIKE @customer` with the value
+  `"%" + customer + "%"` bound as a parameter), or filter through the
+  repository instead of building raw SQL.
+
+  2. backend/src/InvoiceApp.Api/Controllers/InvoicesController.cs:32 | critical
+  | confidence high
+     What goes wrong: The optional `status` query parameter is also interpolated
+  directly into the SQL, which is a second injection point.
+     Failure scenario: `GET /api/invoices/search?customer=a&status=' OR '1'='1`
+  turns the filter into `Status = '' OR '1'='1'`. That bypasses the filter and
+  allows any arbitrary SQL to be appended.
+     Fix: Bind `status` as a parameter, or parse it into the invoice status enum
+  and reject values that do not match.
+
+  3. backend/src/InvoiceApp.Api/Controllers/InvoicesController.cs:35 | high |
+  confidence low
+     What goes wrong: The diff calls `_queries.Run(sql)`, but it never declares,
+  injects or registers a `_queries` dependency. The rest of the controller uses
+  `_repository`, which is in-memory, so there is probably no SQL backend to run
+  this against.
+     Failure scenario: If no `_queries` field exists outside the hunk, the
+  project fails to compile. If it exists but is not registered in `Program.cs`,
+  the controller fails to construct on every request, which breaks all invoice
+  endpoints. This assumes code I cannot see in the diff.
+     Fix: Search through the existing `IInvoiceRepository`, with the filter
+  logic in the Domain project, instead of an unregistered raw-SQL query runner.
+
+● Eight of ten are back. Still waiting on case-01 and case-03.
+
+✻ Worked for 1s · done Tuesday 8:26 PM
+
+› Message from general-purpose
+  DEFECTS: 3
+
+  1. backend/src/InvoiceApp.Api/Controllers/ApprovalsController.cs:51 | high |
+  confidence medium
+     What goes wrong: `_approvals.Approve` is called directly, not through
+  `Handle(...)`. Any service error therefore escapes as an unhandled exception
+  (500) instead of being mapped to 404, 409 or 400.
+     Failure scenario: An Approver posts `{"ids":["INV-1","does-not-exist"]}`.
+  The second id throws a not-found error from the service, and the caller gets a
+  500 instead of a 404. Assumption: `Approve` throws for unknown or non-pending
+  invoices, as the `Handle` convention implies.
+     Fix: Wrap the bulk operation in `Handle(...)` the same way the
+  single-invoice endpoints do.
+
+  2. backend/src/InvoiceApp.Api/Controllers/ApprovalsController.cs:49 | high |
+  confidence medium
+     What goes wrong: The loop is not atomic. Approvals made before a failing id
+  stay committed, but the request still fails, so the caller cannot tell which
+  invoices were approved.
+     Failure scenario: `{"ids":["INV-1","INV-2","INV-1"]}`. INV-1 and INV-2 are
+  approved. The repeated INV-1 is no longer pending, so it throws (409 or 500).
+  The client sees an error and may retry, while two invoices are already
+  approved. An already-approved or rejected id in the middle of the list behaves
+  the same way.
+     Fix: Check every id first (it exists, it is pending, no duplicates) before
+  approving any, or return a result for each id. Put that logic in the Domain
+  service, not the controller.
+
+  3. backend/src/InvoiceApp.Api/Controllers/ApprovalsController.cs:49 | medium |
+  confidence high
+     What goes wrong: `Ids` is declared nullable (`List<string>?`), but it is
+  iterated without a null check, and the request body itself can also be null.
+     Failure scenario: An Approver posts `{}` or `{"ids":null}`. `foreach` over
+  the null `request.Ids` throws a NullReferenceException, and the caller gets a
+  500 instead of a 400.
+     Fix: Return 400 (BadRequest) when `request?.Ids` is null or empty, before
+  the loop.
+
+● Nine of ten are back. Only case-03 is still running.
+
+✻ Baked for 1s · done Tuesday 8:26 PM
+
+● Agent "Run 3 review case-01" finished · 15s
+
+› Message from general-purpose
+  DEFECTS: 2
+
+  1. backend/src/InvoiceApp.Domain/DiscountCalculator.cs:16 | high | confidence
+  medium
+     What goes wrong: The discount is now cut off to 2 decimals
+  (`MidpointRounding.ToZero` truncates; it does not round) before it is
+  subtracted. When the discount's third decimal is 5 or more, the customer gets
+  up to 0.01 less discount, and the totals no longer match the old
+  `AwayFromZero` result.
+     Failure scenario: amount = 1.00, discountPercent = 0.6. The discount is
+  0.006. The old code returned Round(0.994, AwayFromZero) = 0.99. The new code
+  truncates the discount to 0.00 and returns 1.00. In the same way, amount =
+  100.00 at 12.346% gives a discount of 12.346: the old result was 87.65, the
+  new one is 87.66. Every invoice whose discount has a third decimal of 5 or
+  more is overcharged by one cent.
+     Fix: Keep a single round-half-away-from-zero on the final value
+  (`Math.Round(amount - discount, 2, MidpointRounding.AwayFromZero)`), or round
+  the discount with `AwayFromZero` instead of truncating it, if the discount has
+  to be rounded on its own.
+
+  2. backend/src/InvoiceApp.Domain/DiscountCalculator.cs:16-17 | medium |
+  confidence medium
+     What goes wrong: `ToZero` truncates toward zero, so the result changes
+  direction with the sign. For negative amounts (credit notes or refunds),
+  truncating the discount and the result moves the value toward zero. That
+  shrinks the credit, which is the opposite of the error on positive amounts.
+  Amounts with more than 2 decimals are also cut off instead of rounded.
+     Failure scenario: amount = -1.00, discountPercent = 0.6. The discount is
+  -0.006, truncated to 0.00, so the result is -1.00. The old code gave
+  Round(-0.994, AwayFromZero) = -0.99. Separately, amount = 10.009 with 0%
+  discount now returns 10.00 instead of 10.01.
+     Fix: Use one symmetric midpoint mode (`AwayFromZero` or `ToEven`) on the
+  final result instead of directed truncation.
+
+● All ten run-3 reviews are back. I'll write run 3 up with a three-run
+  comparison.
+
+● Write(ops/evals/results/run-3.md)
+  ⎿  Wrote 267 lines to ops/evals/results/run-3.md
+      1 # Review eval: run 3 (raw, not yet scored)
+      2 
+      3 **Status: NOT SCORED.** The answer key is not in this repository 
+        (`ops/evals/README.md:4-5`, `ops/README.md:27-30`); it is in the 
+        facilitator's session runbook. This file records what each review
+        er reported. The verdict column and the counts and rates below st
+        ay blank until someone fills them in from the key.
+      4 
+      5 This completes the three runs the README asks for (`README.md:27-
+        28`). The section [Across all three runs](#across-all-three-runs)
+     … +263 lines (~22 KB) (ctrl+o to expand)
+
+● Agent "Run 3 review case-03" finished · 19s
+
+● Run 3 is done and saved to ops/evals/results/run-3.md. I used that file rather
+  than run-1.md, as with run 2, so run 1 isn't overwritten. Nothing is
+  committed. All three runs the README asks for are now finished.
+
+  There are still no caught, missed or false-alarm counts or rates. No answer
+  key has been provided, so all three runs are unscored, with empty Verdict
+  columns and blank score tables. The key needs to come from the facilitator's
+  runbook.
+
+  How it was run: the same way as runs 1 and 2. Each case got a fresh subagent
+  with only the v2 prompt and its own diff. Each made only its one hand-back
+  call.
+
+  What the reviewers reported:
+  - 8 cases flagged (01, 02, 03, 05, 07, 08, 09, 10) and 2 passed (04, 06), the
+    same split as runs 1 and 2.
+  - 17 findings: 5 critical, 5 high, 5 medium and 2 low. Runs 1 and 2 had 18
+    and 15.
+  - All 10 replies followed the required format.
+
+  Across all three runs (run-3.md includes a section bringing them together):
+  - Whether each case has a defect was identical in all three runs. The main
+    finding in every flagged case was also the same. Once you have the key, each
+    case's verdict will most likely be the same in all three runs, so the
+    three-run rates will probably equal the single-run rates.
+  - The main finding's severity was steady except in case-08, which was critical
+    in run 1 and high in runs 2 and 3.
+  - Most extra findings recurred. Examples: case-01's null Ids, case-02's
+    undeclared _queries, case-05's missing Handle wrapping and domain lifecycle
+    check, and case-08's non-atomic check-then-write. Two came and went:
+    case-01's unbounded id list appeared in only 1 of 3 runs, and case-07's
+    _logger injection in 2 of 3. When you score, these recurring extras decide
+    whether a caught case also carries extra false claims.
+
+  If you paste the facilitator's key, I'll fill in the verdicts and the per-run
+  and three-run rates in all three files.
+
+✻ Crunched for 3m 30s · done Tuesday 8:28 PM
+
+※ recap: All three review eval runs of the v2 prompt are finished, saved unscored in ops/evals/results/run-1.md to run-3.md because the repo has no answer key. Next: paste the facilitator's key and I'll fill in caught, missed and false-alarm counts and rates.
+
+claude -p "Read every file in ops/incidents/INC-2041 and write a first-response incident summary: what is broken, customer and business impact, most likely cause, and a suggested next step. Cite file:line for every claim. Put anything you cannot cite under a 'Guesses' heading." > ops/trials/INC-2041-summary.md
+
+claude -p "Read every file in ops/incidents/INC-2047 and write a first-response incident summary: what is broken, customer and business impact, most likely cause, and a suggested next step. Cite file:line for every claim. Put anything you cannot cite under a 'Guesses' heading." > ops/trials/INC-2047-summary.md 

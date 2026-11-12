@@ -1,0 +1,35 @@
+diff --git a/backend/src/InvoiceApp.Domain/ApprovalService.cs b/backend/src/InvoiceApp.Domain/ApprovalService.cs
+--- a/backend/src/InvoiceApp.Domain/ApprovalService.cs
++++ b/backend/src/InvoiceApp.Domain/ApprovalService.cs
+@@ -22,6 +22,12 @@ public class ApprovalService
+             throw new InvalidOperationException(
+                 $"Invoice {invoiceId} is {invoice.Status}; only drafts can be submitted.");
+         }
++
++        if (invoice.Amount <= 0)
++        {
++            throw new ArgumentException(
++                $"Invoice {invoiceId} has amount {invoice.Amount}; only positive amounts can be submitted.");
++        }
+
+         invoice.Status = InvoiceStatus.PendingApproval;
+         _repository.Update(invoice);
+diff --git a/backend/tests/InvoiceApp.Tests/ApprovalServiceTests.cs b/backend/tests/InvoiceApp.Tests/ApprovalServiceTests.cs
+--- a/backend/tests/InvoiceApp.Tests/ApprovalServiceTests.cs
++++ b/backend/tests/InvoiceApp.Tests/ApprovalServiceTests.cs
+@@ -28,6 +28,15 @@ public class ApprovalServiceTests
+
+         Assert.Throws<InvalidOperationException>(() => service.Submit("INV-1"));
+     }
++
++    [Fact]
++    public void Submit_RejectsInvoiceWithZeroAmount()
++    {
++        var invoice = InvoiceWith("INV-1", InvoiceStatus.Draft);
++        invoice.Amount = 0m;
++
++        Assert.Throws<ArgumentException>(() => ServiceFor(invoice).Submit("INV-1"));
++    }
+
+     [Fact]
+     public void Approve_SetsStatusApproverAndTimestamp()

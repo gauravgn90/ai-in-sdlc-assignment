@@ -1,0 +1,26 @@
+diff --git a/backend/src/InvoiceApp.Domain/MonthEndReport.cs b/backend/src/InvoiceApp.Domain/MonthEndReport.cs
+new file mode 100644
+--- /dev/null
++++ b/backend/src/InvoiceApp.Domain/MonthEndReport.cs
+@@ -0,0 +1,21 @@
++namespace InvoiceApp.Domain;
++
++/// <summary>Totals of approved invoices for the month-end finance close.</summary>
++public class MonthEndReport
++{
++    private readonly IInvoiceRepository _invoices;
++
++    public MonthEndReport(IInvoiceRepository invoices)
++    {
++        _invoices = invoices;
++    }
++
++    public decimal ApprovedTotal(DateTime period)
++    {
++        return _invoices.GetAll()
++            .Where(invoice => invoice.Status == InvoiceStatus.Approved
++                && invoice.DecidedAt.HasValue
++                && invoice.DecidedAt.Value.Month == period.Month)
++            .Sum(invoice => invoice.Amount);
++    }
++}

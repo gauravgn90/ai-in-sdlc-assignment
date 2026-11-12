@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest"
+      ]
+    },
+    "mermaid": {
+      "type": "stdio",
+      "command": "/home/gauravkumar07/.nvm/versions/node/v24.18.0/bin/mcp-mermaid",
+      "args": [],
+      "env": {}
+    }
+  }
+}
